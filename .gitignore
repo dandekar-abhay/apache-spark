@@ -1,1 +1,4 @@
 java.spark/target/
+java.spark/.classpath
+java.spark/.settings/
+

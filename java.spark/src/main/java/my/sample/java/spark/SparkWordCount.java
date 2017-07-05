@@ -88,8 +88,22 @@ public class SparkWordCount { // implements Serializable {
 		counts.saveAsTextFile(outputFilePath);
 
 	}
+	
+	public void processWithLambdas(JavaSparkContext jsc, String inputFilePath, String outputFilePath) {
+		JavaRDD<String> text = jsc.textFile(inputFilePath);
 
-	/*
+		JavaRDD<String> words = text.flatMap(s -> Arrays.asList(s.split(" ")).iterator());
+
+		long totalCount = words.count();
+		System.out.println("Total words : " + totalCount);
+
+		JavaPairRDD<String, Integer> counts = words.mapToPair(w -> new Tuple2<String, Integer>(w,1) ).reduceByKey((x,y) -> x+y);
+
+		// SAVE THE OUTPUT TO SOME FILE
+		counts.saveAsTextFile(outputFilePath);
+
+	}
+
 	public void processInternal(JavaSparkContext jsc, String inputFilePath, String outputFilePath) {
 		JavaRDD<String> text = jsc.textFile(inputFilePath);
 
@@ -133,16 +147,15 @@ public class SparkWordCount { // implements Serializable {
 		counts.saveAsTextFile(outputFilePath);
 
 	}
-	*/
 
 	public static void main(String[] args) {
 
 		// Run the java program
-		String inputFilePath = args[0];
-		String outputFilePath = args[1];
+//		String inputFilePath = args[0];
+//		String outputFilePath = args[1];
 		
-//		String inputFilePath = "/tmp/README.md";
-//		String outputFilePath = "/tmp/output";
+		String inputFilePath = "/tmp/README.md";
+		String outputFilePath = "/tmp/output";
 
 		// Moved sparkcontext to class level variable
 //		SparkConf conf = new SparkConf().setMaster("local").setAppName("AbhayWordCount");
@@ -151,6 +164,7 @@ public class SparkWordCount { // implements Serializable {
 
 		SparkWordCount myCounter = new SparkWordCount();
 		// myCounter.processInternal(jsc, inputFilePath, outputFilePath);
-		myCounter.processExternal(myCounter.jsc, inputFilePath, outputFilePath);
+		// myCounter.processExternal(myCounter.jsc, inputFilePath, outputFilePath);
+		myCounter.processWithLambdas(myCounter.jsc, inputFilePath, outputFilePath);
 	}
 }
