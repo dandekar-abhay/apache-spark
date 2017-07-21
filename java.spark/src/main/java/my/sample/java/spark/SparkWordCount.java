@@ -1,5 +1,6 @@
 package my.sample.java.spark;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -9,6 +10,8 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
@@ -76,7 +79,8 @@ public class SparkWordCount { // implements Serializable {
 	
 	public SparkWordCount() {
 		// TODO Auto-generated constructor stub
-		SparkConf conf = new SparkConf().setMaster("spark://10.20.4.35:7077").setAppName("AbhayWordCount");
+		// SparkConf conf = new SparkConf().setMaster("spark://10.20.4.35:7077").setAppName("AbhayWordCount");
+		SparkConf conf = new SparkConf().setMaster("local").setAppName("AbhayWordCount");
 		this.jsc = new JavaSparkContext(conf);
 		System.out.println("Java spark context inited");
 	}
@@ -126,6 +130,9 @@ public class SparkWordCount { // implements Serializable {
 			
 			//JavaPairRDD<String, Integer> counts = data.mapToPair(w -> new Tuple2<String, Integer>(w,1) ).reduceByKey((x,y) -> x+y);
 		
+			data.saveAsNewAPIHadoopFile (inputFilePath.concat(".usingNew"), LongWritable.class, Text.class, SequenceFileOutputFormat.class);			
+			data.saveAsHadoopFile(inputFilePath.concat(".UsingOld"), LongWritable.class, Text.class, org.apache.hadoop.mapred.SequenceFileOutputFormat.class);
+			
 			data.saveAsTextFile("/tmp/newDataFromHdfs");
 			
 		} catch (IllegalArgumentException e) {
@@ -192,8 +199,8 @@ public class SparkWordCount { // implements Serializable {
 		String inputFilePath = "/tmp/README.md";
 		String outputFilePath = "/tmp/output";
 		
-		String hadoopInputFilePath = "hdfs://localhost:9000/emp_table.dta/emp_table.dta";
-		
+		// String hadoopInputFilePath = "hdfs://localhost:9000/emp_table.dta/emp_table.dta";
+		String hadoopInputFilePath = "hdfs://localhost:9000/user/abhay/README.txt";
 
 		// Moved sparkcontext to class level variable
 //		SparkConf conf = new SparkConf().setMaster("local").setAppName("AbhayWordCount");
