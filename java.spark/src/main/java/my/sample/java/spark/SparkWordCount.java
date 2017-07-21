@@ -1,6 +1,5 @@
 package my.sample.java.spark;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -77,7 +76,7 @@ public class SparkWordCount { // implements Serializable {
 	
 	public SparkWordCount() {
 		// TODO Auto-generated constructor stub
-		SparkConf conf = new SparkConf().setMaster("local").setAppName("AbhayWordCount");
+		SparkConf conf = new SparkConf().setMaster("spark://10.20.4.35:7077").setAppName("AbhayWordCount");
 		this.jsc = new JavaSparkContext(conf);
 		System.out.println("Java spark context inited");
 	}
