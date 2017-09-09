@@ -79,8 +79,15 @@ public class SparkWordCount { // implements Serializable {
 	
 	public SparkWordCount() {
 		// TODO Auto-generated constructor stub
-		// SparkConf conf = new SparkConf().setMaster("spark://10.20.4.35:7077").setAppName("AbhayWordCount");
-		SparkConf conf = new SparkConf().setMaster("local").setAppName("AbhayWordCount");
+		SparkConf conf = new SparkConf().
+				setMaster("spark://mean-machine:7077").
+				setAppName("AbhayWordCount");
+		// SparkConf conf = new SparkConf().setMaster("spark://127.0.1.1:7077").setAppName("AbhayWordCount");
+		
+//		SparkConf conf = new SparkConf().
+//				setMaster("local").
+//				setAppName("AbhayWordCount");
+//		 
 		this.jsc = new JavaSparkContext(conf);
 		System.out.println("Java spark context inited");
 	}
@@ -93,7 +100,9 @@ public class SparkWordCount { // implements Serializable {
 		long totalCount = words.count();
 		System.out.println("Total words : " + totalCount);
 
-		JavaPairRDD<String, Integer> counts = words.mapToPair(new SparkMapper()).reduceByKey(new SparkReducer());
+		JavaPairRDD<String, Integer> counts = words.mapToPair(
+				new SparkMapper()).
+				reduceByKey(new SparkReducer());
 
 		// SAVE THE OUTPUT TO SOME FILE
 		counts.saveAsTextFile(outputFilePath);
@@ -103,12 +112,19 @@ public class SparkWordCount { // implements Serializable {
 	public void processWithLambdas(JavaSparkContext jsc, String inputFilePath, String outputFilePath) {
 		JavaRDD<String> text = jsc.textFile(inputFilePath);
 				
-		JavaRDD<String> words = text.flatMap(s -> Arrays.asList(s.split(" ")).iterator());
+		JavaRDD<String> words = text.flatMap
+				(s -> Arrays.asList(s.split(" ")).iterator());
 
 		long totalCount = words.count();
 		System.out.println("Total words : " + totalCount);
 
-		JavaPairRDD<String, Integer> counts = words.mapToPair(w -> new Tuple2<String, Integer>(w,1) ).reduceByKey((x,y) -> x+y);
+		JavaPairRDD<String, Integer> counts = 
+				words.mapToPair(
+						w -> new Tuple2<String, Integer>(w,1) 
+						)
+				.reduceByKey(
+						(x,y) -> x+y
+						);
 
 		// SAVE THE OUTPUT TO SOME FILE	
 		counts.saveAsTextFile(outputFilePath);
@@ -121,7 +137,12 @@ public class SparkWordCount { // implements Serializable {
 		try {
 			Job job = Job.getInstance();
 			FileInputFormat.setInputPaths(job, new Path(inputFilePath));
-			JavaPairRDD<LongWritable, Text> data = jsc.newAPIHadoopRDD(job.getConfiguration(), TextInputFormat.class, LongWritable.class, Text.class);
+			JavaPairRDD<LongWritable, Text> data = 
+					jsc.newAPIHadoopRDD(
+							job.getConfiguration(), 
+							TextInputFormat.class, 
+							LongWritable.class, 
+							Text.class);
 			
 			System.out.println(data.count());
 			//JavaRDD<Text> words = data.
@@ -130,10 +151,10 @@ public class SparkWordCount { // implements Serializable {
 			
 			//JavaPairRDD<String, Integer> counts = data.mapToPair(w -> new Tuple2<String, Integer>(w,1) ).reduceByKey((x,y) -> x+y);
 		
-			data.saveAsNewAPIHadoopFile (inputFilePath.concat(".usingNew"), LongWritable.class, Text.class, SequenceFileOutputFormat.class);			
-			data.saveAsHadoopFile(inputFilePath.concat(".UsingOld"), LongWritable.class, Text.class, org.apache.hadoop.mapred.SequenceFileOutputFormat.class);
+			data.saveAsNewAPIHadoopFile (outputFilePath.concat(".usingNew"), LongWritable.class, Text.class, SequenceFileOutputFormat.class);			
+			data.saveAsHadoopFile(outputFilePath.concat(".UsingOld"), LongWritable.class, Text.class, org.apache.hadoop.mapred.SequenceFileOutputFormat.class);
 			
-			data.saveAsTextFile("/tmp/newDataFromHdfs");
+			//data.saveAsTextFile("/tmp/newDataFromHdfs");
 			
 		} catch (IllegalArgumentException e) {
 			// TODO Auto-generated catch block
@@ -149,12 +170,13 @@ public class SparkWordCount { // implements Serializable {
 	public void processInternal(JavaSparkContext jsc, String inputFilePath, String outputFilePath) {
 		JavaRDD<String> text = jsc.textFile(inputFilePath);
 
-		JavaRDD<String> words = text.flatMap(new FlatMapFunction<String, String>() {
-
+		JavaRDD<String> words = text.flatMap(
+				new FlatMapFunction<String, String>() {
 			private static final long serialVersionUID = 2364418317972495932L;
 
 			public Iterator<String> call(String oneLine) {
-				return Arrays.asList(oneLine.split(" ")).iterator();
+				return Arrays.asList(oneLine.split(" "))
+						.iterator();
 			}
 		});
 
@@ -190,28 +212,27 @@ public class SparkWordCount { // implements Serializable {
 
 	}
 
+//	public static void main(String[] args) {
+//
+//		String inputFilePath = "/tmp/README.md";
+//		String outputFilePath = "/tmp/output";
+//
+//		SparkWordCount myCounter = new SparkWordCount();
+//		myCounter.processWithLambdas(myCounter.jsc, inputFilePath, outputFilePath);
+//		
+//	}
+
+	
 	public static void main(String[] args) {
 
-		// Run the java program
-//		String inputFilePath = args[0];
-//		String outputFilePath = args[1];
 		
-		String inputFilePath = "/tmp/README.md";
-		String outputFilePath = "/tmp/output";
-		
-		// String hadoopInputFilePath = "hdfs://localhost:9000/emp_table.dta/emp_table.dta";
-		String hadoopInputFilePath = "hdfs://localhost:9000/user/abhay/README.txt";
-
-		// Moved sparkcontext to class level variable
-//		SparkConf conf = new SparkConf().setMaster("local").setAppName("AbhayWordCount");
-//		JavaSparkContext jsc = new JavaSparkContext(conf);
-//		System.out.println("Java spark context inited");
+		String hadoopInputFilePath = 
+				"hdfs://localhost:9000/user/abhay/README.txt";
+		String hadoopOutputFilePath = 
+				"hdfs://localhost:9000/user/abhay/SPARK_OUT_1";
 
 		SparkWordCount myCounter = new SparkWordCount();
-		// myCounter.processInternal(jsc, inputFilePath, outputFilePath);
-		// myCounter.processExternal(myCounter.jsc, inputFilePath, outputFilePath);
-		// myCounter.processWithLambdas(myCounter.jsc, hadoopInputFilePath, outputFilePath);
-		myCounter.processWithLambdasFromHDFS(myCounter.jsc, hadoopInputFilePath, outputFilePath);
+		myCounter.processWithLambdasFromHDFS(myCounter.jsc, hadoopInputFilePath, hadoopOutputFilePath);
 		
 	}
 }
