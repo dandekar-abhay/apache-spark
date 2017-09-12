@@ -12,7 +12,7 @@ import apache.spark.poc.config.Configuration;
 
 import java.util.Arrays;
 
-public class SparkStreamingKafka {
+public class SparkStructuredStreamingKafka {
 
 	{
 		Logger logger = Logger.getRootLogger();
@@ -20,7 +20,6 @@ public class SparkStreamingKafka {
 	}
 	
 	public static void main(String[] args) throws StreamingQueryException {
-
 		
 		SparkSession spark = SparkSession
 				  .builder()

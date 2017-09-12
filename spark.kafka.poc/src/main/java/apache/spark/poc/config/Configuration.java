@@ -10,7 +10,7 @@ public class Configuration {
 	/**
 	 * Topic name to be referred to
 	 */
-	public static final String KAFKA_TOPIC = "spark-test-partioned";
+	public static final String KAFKA_TOPIC = "spark-test-partioned-1";
 	
 	/**
 	 * Kafka broker details along with port

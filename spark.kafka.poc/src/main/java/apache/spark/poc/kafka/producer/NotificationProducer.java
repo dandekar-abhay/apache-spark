@@ -14,7 +14,7 @@ import apache.spark.poc.config.Configuration;
 
 public class NotificationProducer {
 	
-	private static final boolean debug = false; 
+	private static final boolean debug = true; 
 
 	public static void main(String[] argv) throws Exception {
 
@@ -27,6 +27,7 @@ public class NotificationProducer {
 				"org.apache.kafka.common.serialization.ByteArraySerializer");
 		configProperties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
 				"org.apache.kafka.common.serialization.StringSerializer");
+		configProperties.put("request.required.acks","1");
 
 		configProperties.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, IntegerPartitioner.class.getCanonicalName());
 		configProperties.put("partitions.0", "0");
