@@ -60,6 +60,7 @@ public class SparkStructuredStreamingKafka {
 	    // Start running the query that prints the running counts to the console
 	    StreamingQuery query = wordCounts.writeStream()
 	      .outputMode("complete")
+	      .option("checkpointLocation", "/tmp/checkpoint")
 	      .format("console")
 	      .start();
 	    

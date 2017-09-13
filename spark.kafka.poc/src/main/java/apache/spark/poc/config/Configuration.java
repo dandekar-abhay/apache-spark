@@ -22,7 +22,7 @@ public class Configuration {
 	 */
 	public static final String KAFKA_GROUP_ID = "";
 	
-	public static final int KAFKA_PRODUCER_FREQ_SECS = 10;
+	public static final int KAFKA_PRODUCER_FREQ_SECS = 3;
 	
 	
 	public static final Map<String, String> KAFKA_PROPERTIES = new HashMap<String, String>();
