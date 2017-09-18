@@ -1,5 +1,6 @@
 package apache.spark.poc.kafka.producer;
 
+import java.io.File;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -51,20 +52,23 @@ public class NotificationProducer {
         try {
           Producer<String, String> producer =
               new KafkaProducer<String, String>(configProperties);
-          int randomNum = ThreadLocalRandom.current().nextInt(0, 100);
-          testMessage.setFileName("Input-File_" + randomNum);
-          testMessage.setSkipHeader(true);
-          testMessage.setTaskId(randomNum);
-          testMessage.setHdfsLocation("HDFS-File-Location_" + randomNum);
-          String msg = mapper.writeValueAsString(testMessage);
-          producer.send(new ProducerRecord<String, String>(topicName, msg));
-
+          
+          for (String fname : Configuration.fileList) {
+            int randomNum = ThreadLocalRandom.current().nextInt(0, 100);
+            String nFSFilePath = Configuration.INPUT_DATA_PATH + File.separator + fname;
+            testMessage.setFileName(nFSFilePath);
+            testMessage.setSkipHeader(true);
+            testMessage.setTaskId(randomNum);
+            testMessage.setHdfsLocation(Configuration.HDFS_STAGE_DATA_PATH + "/HDFS-File-Location_" + fname);
+            String msg = mapper.writeValueAsString(testMessage);
+            producer.send(new ProducerRecord<String, String>(topicName, msg));
+            if (debug) {
+              System.out.println("Message inserted : " + msg);
+              System.out.println("Topic : " + topicName);
+            }
+          }
           producer.close();
 
-          if (debug) {
-            System.out.println("Message inserted : " + msg);
-            System.out.println("Topic : " + topicName);
-          }
         } catch (Exception e) {
           System.err.println("Exception while calling the timer");
           e.printStackTrace(System.err);
@@ -72,6 +76,9 @@ public class NotificationProducer {
       }
     };
 
-    timer.schedule(task, 1000, Configuration.KAFKA_PRODUCER_FREQ_SECS * 100);
+   timer.schedule(task, 1000, Configuration.KAFKA_PRODUCER_FREQ_SECS * 1000);
+    
+// task.run();
+   
   }
 }

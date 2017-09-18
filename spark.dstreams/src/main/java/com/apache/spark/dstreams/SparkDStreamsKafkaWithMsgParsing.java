@@ -21,6 +21,7 @@ import org.apache.spark.streaming.kafka.OffsetRange;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import apache.spark.poc.entity.Message;
+import apache.spark.poc.utils.LocalToHDFSCopy;
 import kafka.serializer.StringDecoder;
 import scala.Tuple2;
 
@@ -81,13 +82,14 @@ public class SparkDStreamsKafkaWithMsgParsing {
           kafkaMessage.mapToPair(message -> {
             System.out
                 .println("Copying file from " + message.getHdfsLocation());
-            return new Tuple2<String, Boolean>(message.getHdfsLocation(), true);
+            boolean copyStatus = LocalToHDFSCopy.copyToHDFS(message.getFileName(), message.getHdfsLocation());
+            return new Tuple2<String, Boolean>(message.getHdfsLocation(), copyStatus);
           });
 
       List<Tuple2<String, Boolean>> results = copyHDFSStatus.collect();
 
       if (results.size() > 0) {
-        System.out.println("Reduced word counts: " + results.get(0));
+        System.out.println("Copied files counts: " + results.get(0));
       }
       return null;
     });
