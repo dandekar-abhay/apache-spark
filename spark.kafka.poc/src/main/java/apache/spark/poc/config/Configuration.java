@@ -5,16 +5,18 @@ import java.util.Map;
 
 public class Configuration {
 
-	public static final String KAFKA_ZK_QUORUM = "localhost:2181";
+	// public static final String KAFKA_ZK_QUORUM = "10.20.4.35:2181";
+  public static final String KAFKA_ZK_QUORUM = "localhost:2181";
 	
 	/**
 	 * Topic name to be referred to
 	 */
-	public static final String KAFKA_TOPIC = "spark-test-partioned-1";
+	public static final String KAFKA_TOPIC = "sparktopic";
 	
 	/**
 	 * Kafka broker details along with port
 	 */
+	// public static final String KAFKA_BROKER = "10.20.4.35:9092";
 	public static final String KAFKA_BROKER = "localhost:9092";
 	
 	/**

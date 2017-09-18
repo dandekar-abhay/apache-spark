@@ -92,15 +92,15 @@ public class Message implements Serializable {
 	
 	private static void myUnitTest(){
 		
-		Message testMessage = new Message(0, "Input-File_10", true, "HDFS-File-Location_10");
-
+		Message testMessage = new Message(0, "fileName", true, "hdfsLocation");
+		
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			String newJson = mapper.writeValueAsString(testMessage);
 			System.out.println(newJson);
 			
 			Message retrievedMsg = mapper.readValue(newJson.getBytes(), Message.class);
-			Assert.assertEquals("Input-File_10:true:HDFS-File-Location_10", retrievedMsg.toString());
+			Assert.assertEquals("0:fileName:true:hdfsLocation", retrievedMsg.toString());
 			
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block

@@ -14,6 +14,27 @@ import apache.spark.poc.entity.Message;
 
 public class SparkStructuredStreamingKafkaWithMsgParser {
 
+  private class StatusClass {
+    String hdfsLocation;
+    Boolean status;
+
+    public String getHdfsLocation() {
+      return hdfsLocation;
+    }
+
+    public void setHdfsLocation(String hdfsLocation) {
+      this.hdfsLocation = hdfsLocation;
+    }
+
+    public Boolean getStatus() {
+      return status;
+    }
+
+    public void setStatus(Boolean status) {
+      this.status = status;
+    }
+
+  }
 
   public static void main(String[] args) throws StreamingQueryException {
 
@@ -26,15 +47,14 @@ public class SparkStructuredStreamingKafkaWithMsgParser {
             .add("skipHeader", "boolean").add("hdfsLocation", "string");
 
     // Create DataSet representing the stream of input lines from kafka
-    Dataset<String> kafkaValues = spark.readStream()
-        .format("kafka")
+    Dataset<String> kafkaValues = spark.readStream().format("kafka")
         .option("kafka.bootstrap.servers", Configuration.KAFKA_BROKER)
         .option("subscribe", Configuration.KAFKA_TOPIC)
-        .option("checkpointLocation", "file:///tmp/checkpoint")
-        .load()
+        .option("fetchOffset.retryIntervalMs", 100)
+        .option("checkpointLocation", "file:///tmp/checkpoint").load()
         .selectExpr("CAST(value AS STRING)").as(Encoders.STRING());
 
-//    StructType schema = kafkaValues.schema();
+    // StructType schema = kafkaValues.schema();
 
     Dataset<String> locationRows = kafkaValues.map(x -> {
       ObjectMapper mapper = new ObjectMapper();
@@ -44,15 +64,15 @@ public class SparkStructuredStreamingKafkaWithMsgParser {
 
     // Start running the query that prints the running counts to the console
     StreamingQuery query = locationRows.writeStream().outputMode("append")
-        .option("checkpointLocation", "file:///tmp/checkpoint")
+        .option("checkpointLocation", "file:///tmp/checkpoint1")
         .format("console").start();
 
     // Start a monitoring thread over query
     new Thread(() -> {
       try {
-        while(true) {
+        while (true) {
           System.out.println("Last Progress " + query.lastProgress());
-          Thread.sleep(5000);          
+          Thread.sleep(5000);
         }
       } catch (InterruptedException e) {
         e.printStackTrace();

@@ -10,11 +10,14 @@ import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import apache.spark.poc.config.Configuration;
+import apache.spark.poc.entity.Message;
 
 public class NotificationProducer {
 
-  private static final boolean debug = true;
+  private static final boolean debug = false;
 
   public static void main(String[] argv) throws Exception {
 
@@ -25,37 +28,41 @@ public class NotificationProducer {
     configProperties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
         Configuration.KAFKA_BROKER);
     configProperties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
-        "org.apache.kafka.common.serialization.ByteArraySerializer");
+        "org.apache.kafka.common.serialization.StringSerializer");
     configProperties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
         "org.apache.kafka.common.serialization.StringSerializer");
     configProperties.put("request.required.acks", "1");
 
-    configProperties.put(ProducerConfig.PARTITIONER_CLASS_CONFIG,
-        IntegerPartitioner.class.getCanonicalName());
-    configProperties.put("partitions.0", "0");
-    configProperties.put("partitions.1", "1");
-    configProperties.put("partitions.2", "2");
-    configProperties.put("partitions.3", "3");
-
-    final Producer<String, String> producer =
-        new KafkaProducer<String, String>(configProperties);
-    System.out.println("Sending messages to topic: " + topicName);
+    // configProperties.put(ProducerConfig.PARTITIONER_CLASS_CONFIG,
+    // IntegerPartitioner.class.getCanonicalName());
+    // configProperties.put("partitions.0", "0");
+    // configProperties.put("partitions.1", "1");
+    // configProperties.put("partitions.2", "2");
+    // configProperties.put("partitions.3", "3");
 
     Timer timer = new Timer();
     TimerTask task = new TimerTask() {
 
+      Message testMessage = new Message();
+      ObjectMapper mapper = new ObjectMapper();
+
       @Override
       public void run() {
         try {
-          // int randomNum = ThreadLocalRandom.current().nextInt(0, 5);
-          // int randomNum = 100;
-          // final String msg = randomNum + ":" + 1;
-          final String msg =
-              "{\"taskId\":100,\"fileName\":\"myfileName\",\"skipHeader\":true,\"hdfsLocation\":\"myHdfsLocation\"}";
-
+          Producer<String, String> producer =
+              new KafkaProducer<String, String>(configProperties);
+          int randomNum = ThreadLocalRandom.current().nextInt(0, 100);
+          testMessage.setFileName("Input-File_" + randomNum);
+          testMessage.setSkipHeader(true);
+          testMessage.setTaskId(randomNum);
+          testMessage.setHdfsLocation("HDFS-File-Location_" + randomNum);
+          String msg = mapper.writeValueAsString(testMessage);
           producer.send(new ProducerRecord<String, String>(topicName, msg));
+
+          producer.close();
+
           if (debug) {
-            System.out.println("Message inserted : " + msg );
+            System.out.println("Message inserted : " + msg);
             System.out.println("Topic : " + topicName);
           }
         } catch (Exception e) {
@@ -65,6 +72,6 @@ public class NotificationProducer {
       }
     };
 
-    timer.schedule(task, 1000, Configuration.KAFKA_PRODUCER_FREQ_SECS * 1000);
+    timer.schedule(task, 1000, Configuration.KAFKA_PRODUCER_FREQ_SECS * 100);
   }
 }
