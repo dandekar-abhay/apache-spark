@@ -6,7 +6,7 @@ import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.streaming.StreamingQuery;
 import org.apache.spark.sql.streaming.StreamingQueryException;
-import org.apache.spark.sql.types.StructType;
+import org.apache.spark.sql.streaming.Trigger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -56,6 +56,8 @@ public class SparkStructuredStreamingKafkaWithMsgParser {
 
     // Create DataSet representing the stream of input lines from kafka
     Dataset<String> kafkaValues = spark.readStream().format("kafka")
+        // .option("kafka.group.id", "sparkStream-gid")
+        .option("spark.streaming.receiver.writeAheadLog.enable", true)
         .option("kafka.bootstrap.servers", Configuration.KAFKA_BROKER)
         .option("subscribe", Configuration.KAFKA_TOPIC)
         .option("fetchOffset.retryIntervalMs", 100)
@@ -86,12 +88,19 @@ public class SparkStructuredStreamingKafkaWithMsgParser {
       return m.getHdfsLocation();
     }, Encoders.STRING());
 
-    
-    
-    StreamingQuery query = copyStatusRows.writeStream().outputMode("append")
-        // .option("checkpointLocation", "file:///tmp/checkpoint1")
-        .format("console").start();
+   
+//    StreamingQuery query = copyStatusRows.writeStream().outputMode("append")
+//        // .option("checkpointLocation", "file:///tmp/checkpoint1")
+//        .format("console").start();
 
+    StreamingQuery query = copyStatusRows.writeStream()
+        .outputMode("append")
+        .format("parquet")
+        .option("path", "/tmp/parquetFile")
+        .trigger(Trigger.ProcessingTime(1000 * 10 ))
+        .option("checkpointLocation", "file:///tmp/checkpoint2")
+        .start();
+    
     
     // Start running the query that prints the running counts to the console
 //    StreamingQuery query = locationRows.writeStream().outputMode("append")
@@ -99,19 +108,19 @@ public class SparkStructuredStreamingKafkaWithMsgParser {
 //        .format("console").start();
 
     // Start a monitoring thread over query
-//    new Thread(() -> {
-//      try {
-//        while (true) {
-//          System.out.println("Last Progress " + query.lastProgress());
-//          Thread.sleep(5000);
-//        }
-//      } catch (InterruptedException e) {
-//        e.printStackTrace();
-//      }
-//    }).start();
+    new Thread(() -> {
+      try {
+        while (true) {
+          System.out.println("Last Progress " + query.lastProgress());
+          Thread.sleep(5000);
+        }
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }).start();
 
     System.out.println("Spark writing to console :" + query.status());
-
+    
     query.awaitTermination();
   }
 }
