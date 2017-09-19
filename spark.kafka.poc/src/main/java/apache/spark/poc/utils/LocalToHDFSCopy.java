@@ -9,20 +9,27 @@ public class LocalToHDFSCopy {
   private static FileSystem hdfs;
 
   static {
+
     try {
-      
-      String HDFS_INSTALL_LOCATION = apache.spark.poc.config.Configuration.HDFS_INSTALL_LOCATION;
-      
+
+      String HDFS_INSTALL_LOCATION =
+          apache.spark.poc.config.Configuration.HDFS_INSTALL_LOCATION;
+
       Configuration hdfsConfig = new Configuration();
-      hdfsConfig.addResource(new Path(HDFS_INSTALL_LOCATION + "/etc/hadoop/core-site.xml"));
-      hdfsConfig.addResource(new Path(HDFS_INSTALL_LOCATION + "/etc/hadoop/hdfs-site.xml"));
-      hdfsConfig.addResource(new Path(HDFS_INSTALL_LOCATION + "/etc/hadoop/mapred-site.xml"));
-      
-      System.out.println("Hadoop conf path : " + hdfsConfig.get("fs.default.name"));
-      System.out.println("Hadoop conf path : " + hdfsConfig.get("fs.defaultFS"));
+      hdfsConfig.addResource(
+          new Path(HDFS_INSTALL_LOCATION + "/etc/hadoop/core-site.xml"));
+      hdfsConfig.addResource(
+          new Path(HDFS_INSTALL_LOCATION + "/etc/hadoop/hdfs-site.xml"));
+      hdfsConfig.addResource(
+          new Path(HDFS_INSTALL_LOCATION + "/etc/hadoop/mapred-site.xml"));
+
+      System.out
+          .println("Hadoop conf path : " + hdfsConfig.get("fs.default.name"));
+      System.out
+          .println("Hadoop conf path : " + hdfsConfig.get("fs.defaultFS"));
       hdfs = FileSystem.get(hdfsConfig);
       System.out.println("HDFS initialized successfully");
-      
+
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -38,8 +45,9 @@ public class LocalToHDFSCopy {
 
   public static boolean copyToHDFS(String source, String dest) {
 
-    System.out.println("Received a copy request : \n\t " + source + "\n TO : \n\t" + dest);
-    
+    System.out.println(
+        "Received a copy request : \n\t " + source + "\n TO : \n\t" + dest);
+
     Path hdfsPath =
         new Path(apache.spark.poc.config.Configuration.HDFS_STAGE_DATA_PATH);
 
@@ -56,24 +64,20 @@ public class LocalToHDFSCopy {
       System.out.println("Copy initiated from : " + src + " to : " + dst);
       hdfs.copyFromLocalFile(src, dst);
       System.out.println("Copy completed successfully");
-
+      
     } catch (IOException e) {
       e.printStackTrace();
       return false;
     }
-
     return true;
-
   }
 
   public static void main(String[] args) {
-    
-    String source = apache.spark.poc.config.Configuration.INPUT_DATA_PATH + "/NCT02406092.xml";
-    
-    String dest = apache.spark.poc.config.Configuration.HDFS_STAGE_DATA_PATH + "/NCT02406092_1.xml";  
-    
+    String source = apache.spark.poc.config.Configuration.INPUT_DATA_PATH
+        + "/NCT02406092.xml";
+    String dest = apache.spark.poc.config.Configuration.HDFS_STAGE_DATA_PATH
+        + "/NCT02406092_1.xml";
     copyToHDFS(source, dest);
-    
   }
 
 }
