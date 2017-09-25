@@ -18,7 +18,7 @@ import apache.spark.poc.entity.Message;
 
 public class NotificationProducer {
 
-  private static final boolean debug = false;
+  private static final boolean debug = true;
 
   public static void main(String[] argv) throws Exception {
 

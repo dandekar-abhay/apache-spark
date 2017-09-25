@@ -3,6 +3,7 @@ package apache.spark.poc.utils;
 import java.io.*;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
+import org.apache.spark.api.java.JavaRDD;
 
 public class LocalToHDFSCopy {
 
@@ -71,7 +72,8 @@ public class LocalToHDFSCopy {
     }
     return true;
   }
-
+ 
+  
   public static void main(String[] args) {
     String source = apache.spark.poc.config.Configuration.INPUT_DATA_PATH
         + "/NCT02406092.xml";
