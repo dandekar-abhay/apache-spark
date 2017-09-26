@@ -46,7 +46,7 @@ public class FileProcessor {
       System.out
           .println("Hadoop conf path : " + hdfsConfig.get("fs.default.name"));
       System.out
-          .println("Hadoop conf path : " + hdfsConfig.get("fs.defaultFS"));
+          .println("Hadoop defaultFs path : " + hdfsConfig.get("fs.defaultFS"));
       hdfs = FileSystem.get(hdfsConfig);
       System.out.println("HDFS initialized successfully");
 
@@ -94,7 +94,8 @@ public class FileProcessor {
       BufferedWriter br = new BufferedWriter(new OutputStreamWriter(output, "UTF-8"));
       
       Stream<String> lines = Files.lines(Paths.get(fileLocation));
-      lines.forEach( line -> {
+      Stream<String> dedupedLines = lines.distinct();
+      dedupedLines.forEach( line -> {
         try {
           br.write(line);
           br.newLine();
@@ -117,8 +118,8 @@ public class FileProcessor {
 
   public static void main(String[] args) {
     
-    String fileLocation = "file:///home/abhay/MyHome/WorkArea/DataHome/911CallData/911.csv";
-    String hdfsDumpLocation = "hdfs://localhost:9000/user/data_csv/HDFS-File-Location_913.csv";
+    String fileLocation = "file:///home/abhay/MyHome/WorkArea/DataHome/911CallData/911_duplicate.csv";
+    String hdfsDumpLocation = "hdfs://localhost:9000/user/data_csv/HDFS-File-Location_911_deduped.csv";
     process(fileLocation, hdfsDumpLocation);
     
   }
