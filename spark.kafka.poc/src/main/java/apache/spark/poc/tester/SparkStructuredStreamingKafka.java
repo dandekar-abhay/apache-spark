@@ -1,4 +1,4 @@
-package apache.spark.poc;
+package apache.spark.poc.tester;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;

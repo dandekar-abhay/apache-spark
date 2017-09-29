@@ -59,7 +59,7 @@ public class NotificationProducer {
             testMessage.setFileName(nFSFilePath);
             testMessage.setSkipHeader(true);
             testMessage.setTaskId(randomNum);
-            testMessage.setHdfsLocation(Configuration.HDFS_STAGE_DATA_PATH + "/HDFS-File-Location_" + fname);
+            testMessage.setHdfsLocation(Configuration.HDFS_STAGE_DATA_PATH + "/" + fname);
             String msg = mapper.writeValueAsString(testMessage);
             producer.send(new ProducerRecord<String, String>(topicName, msg));
             if (debug) {

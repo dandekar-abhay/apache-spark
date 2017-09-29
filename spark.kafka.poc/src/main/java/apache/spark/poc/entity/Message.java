@@ -36,6 +36,8 @@ public class Message implements Serializable {
 	private boolean skipHeader;
 	
 	private String hdfsLocation;
+	
+	private boolean skipProcessing;
 
 	public long getTaskId() {
 		return taskId;
@@ -68,17 +70,26 @@ public class Message implements Serializable {
 	public void setHdfsLocation(String hdfsLocation) {
 		this.hdfsLocation = hdfsLocation;
 	}
+	
+	public boolean isSkipProcessing() {
+    return skipProcessing;
+  }
 
-	@Override
+  public void setSkipProcessing(boolean skipProcessing) {
+    this.skipProcessing = skipProcessing;
+  }
+
+  @Override
 	public String toString() {
-		return taskId+":"+fileName+":"+skipHeader+":"+hdfsLocation;
+		return taskId+":"+fileName+":"+skipHeader+":"+hdfsLocation+":"+skipProcessing;
 	}
 	
-	public Message(long taskId, String fileName,boolean skipHeader, String hdfsLocation  ) {
+	public Message(long taskId, String fileName, boolean skipHeader, String hdfsLocation, boolean skipProcessing  ) {
 		this.taskId = taskId;
 		this.fileName = fileName;
 		this.skipHeader = skipHeader;
 		this.hdfsLocation = hdfsLocation;
+		this.skipProcessing = skipProcessing;
 	}
 	
 	public Message() {
@@ -92,15 +103,17 @@ public class Message implements Serializable {
 	
 	private static void myUnitTest(){
 		
-		Message testMessage = new Message(0, "Input-File_10", true, "HDFS-File-Location_10");
+		Message testMessage = new Message(0, "Input-File_10", true, "HDFS-File-Location_10", false);
 
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			String newJson = mapper.writeValueAsString(testMessage);
-			System.out.println(newJson);
+			System.out.println("To String:" + newJson);
 			
 			Message retrievedMsg = mapper.readValue(newJson.getBytes(), Message.class);
-			Assert.assertEquals("Input-File_10:true:HDFS-File-Location_10", retrievedMsg.toString());
+			System.out.println("From String: " + retrievedMsg.toString());
+			System.out.println("Expected   : " + "0:Input-File_10:true:HDFS-File-Location_10:false");
+			Assert.assertEquals("0:Input-File_10:true:HDFS-File-Location_10:false", retrievedMsg.toString());
 			
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block

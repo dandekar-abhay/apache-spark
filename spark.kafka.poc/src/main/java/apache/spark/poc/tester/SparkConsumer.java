@@ -1,4 +1,4 @@
-package apache.spark.poc;
+package apache.spark.poc.tester;
 
 import scala.Tuple2;
 

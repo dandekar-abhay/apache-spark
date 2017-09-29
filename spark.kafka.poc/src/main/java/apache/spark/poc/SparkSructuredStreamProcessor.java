@@ -1,11 +1,8 @@
 package apache.spark.poc;
 
-import java.util.List;
-
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.ForeachWriter;
-import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.streaming.StreamingQuery;
 import org.apache.spark.sql.streaming.StreamingQueryException;
@@ -99,7 +96,12 @@ public class SparkSructuredStreamProcessor {
       @Override
       public void process(Message arg0) {
         System.out.println("Entered process method File : " + arg0.getFileName() );
-        FileProcessor.process(arg0.getFileName(), arg0.getHdfsLocation());
+        if (arg0.isSkipProcessing()) {
+          System.out.println("Received a skip processing signal, skipping processing");
+        }else {
+          FileProcessor.process(arg0.getFileName(), arg0.getHdfsLocation());
+        }
+        
       }
       
       @Override
@@ -112,7 +114,7 @@ public class SparkSructuredStreamProcessor {
       public void close(Throwable arg0) {
         System.out.println("Entered close method");
       }
-    } ).start();    
+    } ).start();
     
     query.awaitTermination();
   }
