@@ -41,7 +41,7 @@ public class NotificationProducer {
     // configProperties.put("partitions.2", "2");
     // configProperties.put("partitions.3", "3");
 
-    Timer timer = new Timer();
+    //Timer timer = new Timer();
     TimerTask task = new TimerTask() {
 
       Message testMessage = new Message();
@@ -76,9 +76,37 @@ public class NotificationProducer {
       }
     };
 
-   timer.schedule(task, 1000, Configuration.KAFKA_PRODUCER_FREQ_SECS * 1000);
+   // timer.schedule(task, 1000, Configuration.KAFKA_PRODUCER_FREQ_SECS * 1000);
+    System.out.println("Calling run");
+//    task.run();
+
+    Message testMessage = new Message();
+    ObjectMapper mapper = new ObjectMapper();
     
-// task.run();
+    try {
+      Producer<String, String> producer =
+          new KafkaProducer<String, String>(configProperties);
+      
+      for (String fname : Configuration.fileList) {
+        int randomNum = ThreadLocalRandom.current().nextInt(0, 100);
+        String nFSFilePath = Configuration.INPUT_DATA_PATH + File.separator + fname;
+        testMessage.setFileName(nFSFilePath);
+        testMessage.setSkipHeader(true);
+        testMessage.setTaskId(randomNum);
+        testMessage.setHdfsLocation(Configuration.HDFS_STAGE_DATA_PATH + "/" + fname);
+        String msg = mapper.writeValueAsString(testMessage);
+        producer.send(new ProducerRecord<String, String>(topicName, msg));
+        if (debug) {
+          System.out.println("Message inserted : " + msg);
+          System.out.println("Topic : " + topicName);
+        }
+      }
+      producer.close();
+
+    } catch (Exception e) {
+      System.err.println("Exception while calling the timer");
+      e.printStackTrace(System.err);
+    }
    
   }
 }
