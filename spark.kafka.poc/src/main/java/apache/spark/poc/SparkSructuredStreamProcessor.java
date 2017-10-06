@@ -23,7 +23,7 @@ public class SparkSructuredStreamProcessor {
   public static void main(String[] args) throws StreamingQueryException {
 
     SparkSession spark = SparkSession.builder().appName("StructuredFileReader")
-        .master("local[4]").config("spark.executor.memory", "2g").getOrCreate();
+        .master("local[*]").config("spark.executor.memory", "2g").getOrCreate();
 
     // Create DataSet representing the stream of input lines from kafka
     Dataset<String> kafkaValues = spark.readStream().format("kafka")
@@ -31,7 +31,9 @@ public class SparkSructuredStreamProcessor {
         .option("kafka.bootstrap.servers", Configuration.KAFKA_BROKER)
         .option("subscribe", Configuration.KAFKA_TOPIC)
         .option("fetchOffset.retryIntervalMs", 100)
-        .option("checkpointLocation", "file:///tmp/checkpoint").load()
+        .option("checkpointLocation", "file:///tmp/checkpoint")
+        .load()
+        .repartition(4)
         .selectExpr("CAST(value AS STRING)").as(Encoders.STRING());
 
     Dataset<Message> messages = kafkaValues.map(x -> {
@@ -124,7 +126,6 @@ public class SparkSructuredStreamProcessor {
       }
 
       private void setCompletedStatus (long jobId, String status) throws SQLException {
-        System.out.println("Thread id : " + Thread.currentThread().getId());
         initJDBCConnection();
         String updateStmt = String.format(UPDATE_STMT, status, Long.toString(jobId));
         System.out.println("Stmt :-" + updateStmt);
@@ -136,14 +137,28 @@ public class SparkSructuredStreamProcessor {
       @Override
       public void process(Message message) {
         System.out.println("Entered process method File : " + message.getFileName() );
+        System.out.println(" =========== Thread id : " + Thread.currentThread().getId());
         if (message.isSkipProcessing()) {
           System.out.println("Received a skip processing signal, skipping processing");
         }else {
           try {
             initJDBCConnection();
             setStartedStatus(message.getTaskId(), "MOVING_TO_HDFS");
-            FileProcessor.process(message.getFileName(), message.getHdfsLocation());
-            setCompletedStatus(message.getTaskId(), "FINAL_HDFS");
+            int status = FileProcessor.process(message.getFileName(), message.getHdfsLocation());
+            if ( status == 0 ) {
+              setCompletedStatus(message.getTaskId(), "FINAL_HDFS");  
+            }else {
+              setCompletedStatus(message.getTaskId(), "ERROR CODE :" + status);
+            }
+            
+            System.out.println("Sleeping");
+            try {
+              Thread.sleep(10000);
+            } catch (InterruptedException e) {
+              // TODO Auto-generated catch block
+              e.printStackTrace();
+            }
+            
           } catch (SQLException e) {
               System.out.println("Exception while processing job id : " + message.getTaskId());
               e.printStackTrace();
@@ -166,7 +181,6 @@ public class SparkSructuredStreamProcessor {
           System.out.println("In close : Throwable arg is non-null");
         }
         
-        System.out.println("Entered close method");
       }
     } ).start();
     

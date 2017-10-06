@@ -87,20 +87,21 @@ public class NotificationProducer {
       Producer<String, String> producer =
           new KafkaProducer<String, String>(configProperties);
       
-      for (String fname : Configuration.fileList) {
-        int randomNum = ThreadLocalRandom.current().nextInt(0, 100);
-        String nFSFilePath = Configuration.INPUT_DATA_PATH + File.separator + fname;
-        testMessage.setFileName(nFSFilePath);
-        testMessage.setSkipHeader(true);
-        testMessage.setTaskId(randomNum);
-        testMessage.setHdfsLocation(Configuration.HDFS_STAGE_DATA_PATH + "/" + fname);
-        String msg = mapper.writeValueAsString(testMessage);
-        producer.send(new ProducerRecord<String, String>(topicName, msg));
-        if (debug) {
-          System.out.println("Message inserted : " + msg);
-          System.out.println("Topic : " + topicName);
+
+        for (String fname : Configuration.fileList) {
+          int randomNum = ThreadLocalRandom.current().nextInt(0, 100);
+          String nFSFilePath = Configuration.INPUT_DATA_PATH + File.separator + fname;
+          testMessage.setFileName(nFSFilePath);
+          testMessage.setSkipHeader(true);
+          testMessage.setTaskId(randomNum);
+          testMessage.setHdfsLocation(Configuration.HDFS_STAGE_DATA_PATH + "/" + fname);
+          String msg = mapper.writeValueAsString(testMessage);
+          producer.send(new ProducerRecord<String, String>(topicName, msg));
+          if (debug) {  
+            System.out.println("Message inserted : " + msg);
+            System.out.println("Topic : " + topicName);
+          }
         }
-      }
       producer.close();
 
     } catch (Exception e) {

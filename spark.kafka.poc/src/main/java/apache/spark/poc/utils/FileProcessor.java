@@ -110,7 +110,7 @@ public class FileProcessor {
   /*
    * Reads the location, deduplicates it, dumps it to HDFS
    */
-  public static void process(String fileLocation, String hdfsDumpLocation) {
+  public static int process(String fileLocation, String hdfsDumpLocation) {
 
     // Special handle, need to remove this
     if ( fileLocation.startsWith("file:") ) {
@@ -124,11 +124,11 @@ public class FileProcessor {
     // Primary validations
     if (!file.getAbsoluteFile().exists()) {
       System.out.println("File " + fileLocation + " does not exist");
-      return;
+      return -1;
     } else 
     if (file.isDirectory()) {
       System.out.println("File " + fileLocation + " is a directory");
-      return;
+      return -2;
     } else if (file.isFile()) {
       System.out.println("Processing File " + fileLocation);
     }
@@ -175,12 +175,14 @@ public class FileProcessor {
       br.close();
       System.out.println("\nSuccessfully processed file : " + fileLocation);
       System.out.println("Total Time : " + ( System.currentTimeMillis() - startTime) + " ms");
+      
+      return 0;
 
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
-
+    return -3;
+    
   }
 
   static boolean isParallel = false;  

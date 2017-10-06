@@ -69,7 +69,7 @@ public class Configuration {
 //          "NCT00700830.xml", "NCT00610272.xml", "NCT00565448.xml",
 //          "NCT00283036.xml", "NCT00216333.xml", "NCT00140829.xml");
 
-  public static final List<String> fileList = Arrays.asList("911.csv", "oec.csv");
+  public static final List<String> fileList = Arrays.asList("911.csv", "oec.csv", "12MB_fromGz.csv", "12MB_fromGz_1.csv");
   
   static {
     // Add all the kafka properties here
