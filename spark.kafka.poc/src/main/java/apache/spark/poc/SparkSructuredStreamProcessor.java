@@ -19,9 +19,7 @@ import apache.spark.poc.utils.FileProcessor;
 public class SparkSructuredStreamProcessor {
 
   public static void main(String[] args) throws StreamingQueryException {
-
-    final boolean isDebug = false;
-    
+   
     SparkSession spark = SparkSession.builder().appName("StructuredFileReader")
         .master("local[4]").config("spark.executor.memory", "2g").getOrCreate();
 

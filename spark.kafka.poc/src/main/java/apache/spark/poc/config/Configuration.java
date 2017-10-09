@@ -5,10 +5,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
+
+import org.apache.commons.lang.StringUtils;
 
 public class Configuration {
 
@@ -130,7 +130,7 @@ public class Configuration {
     System.out.println("FILE_LIST: " + FILE_LIST);
     System.out.println("JDBC_DB_URL: " + JDBC_DB_URL);
     System.out.println("DB_USER: " + DB_USER);
-    System.out.println("DB_PWD: " + DB_PWD);
+    System.out.println("DB_PWD: " + StringUtils.repeat("*", DB_PWD.length()));
     System.out.println("DB_TABLE: " + DB_TABLE);
     
     return true;

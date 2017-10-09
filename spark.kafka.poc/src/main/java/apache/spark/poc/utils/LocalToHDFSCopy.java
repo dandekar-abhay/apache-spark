@@ -1,9 +1,10 @@
 package apache.spark.poc.utils;
 
-import java.io.*;
+import java.io.IOException;
+
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.*;
-import org.apache.spark.api.java.JavaRDD;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 
 public class LocalToHDFSCopy {
 

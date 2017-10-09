@@ -1,14 +1,7 @@
 package apache.spark.poc.tester;
 
-import java.util.List;
-
-import org.apache.spark.SparkContext;
-import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.broadcast.Broadcast;
 import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Encoder;
 import org.apache.spark.sql.Encoders;
-import org.apache.spark.sql.ForeachWriter;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.streaming.StreamingQuery;
@@ -18,7 +11,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import apache.spark.poc.config.Configuration;
 import apache.spark.poc.entity.Message;
-import apache.spark.poc.utils.FileProcessor;
 
 public class SparkSructuredStreamProcessor_test {
 

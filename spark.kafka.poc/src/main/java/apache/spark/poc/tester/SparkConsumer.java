@@ -1,8 +1,5 @@
 package apache.spark.poc.tester;
 
-import scala.Tuple2;
-
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -16,6 +13,7 @@ import org.apache.spark.streaming.api.java.JavaStreamingContext;
 import org.apache.spark.streaming.kafka.KafkaUtils;
 
 import apache.spark.poc.config.Configuration;
+import scala.Tuple2;
 
 public class SparkConsumer {
 

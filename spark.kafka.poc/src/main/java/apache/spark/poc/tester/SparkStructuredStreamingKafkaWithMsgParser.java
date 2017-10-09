@@ -1,12 +1,7 @@
 package apache.spark.poc.tester;
 
-import java.util.List;
-
-import org.apache.spark.TaskContext;
-import org.apache.spark.broadcast.Broadcast;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoders;
-import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.streaming.StreamingQuery;
 import org.apache.spark.sql.streaming.StreamingQueryException;
@@ -15,7 +10,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import apache.spark.poc.config.Configuration;
 import apache.spark.poc.entity.Message;
-import apache.spark.poc.utils.LocalToHDFSCopy;
 
 class CopyStatus {
   String hdfsLocation;
