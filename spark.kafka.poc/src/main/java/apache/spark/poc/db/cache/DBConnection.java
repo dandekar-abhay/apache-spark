@@ -73,6 +73,10 @@ public class DBConnection implements Serializable {
     PoolableConnectionFactory poolableConnectionFactory = new PoolableConnectionFactory(connectionFactory, null);
     ObjectPool<PoolableConnection> connectionPool = new GenericObjectPool<>(poolableConnectionFactory);
     poolableConnectionFactory.setPool(connectionPool);
+    // poolableConnectionFactory.setDefaultQueryTimeout();
+    // poolableConnectionFactory.setMaxConnLifetimeMillis(Configuration.DB_QUERY_TIMEOUT);
+    poolableConnectionFactory.setDefaultQueryTimeout(Configuration.DB_QUERY_TIMEOUT);
+    poolableConnectionFactory.setMaxOpenPrepatedStatements(Configuration.DB_POOL_SIZE);
     
     PoolingDataSource<PoolableConnection> dataSource = new PoolingDataSource<>(connectionPool);
     return dataSource;

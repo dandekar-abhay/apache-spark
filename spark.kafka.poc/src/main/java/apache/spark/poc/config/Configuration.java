@@ -96,6 +96,18 @@ public class Configuration {
   public static String DB_TABLE;
   public static final String KEY_DB_TABLE = "status_table";
   
+  /*
+   * DB Query timeout
+   */
+  public static int DB_QUERY_TIMEOUT;
+  public static final String KEY_DB_QUERY_TIMEOUT = "db_query_timeout_in_millis";
+  
+  /*
+   * MAX DB Connections  
+   */
+  public static int DB_POOL_SIZE;
+  public static final String KEY_DB_POOL_SIZE = "db_pool_size";
+  
   
   static boolean loadProperties(Properties incomingProps) {
 
@@ -117,6 +129,8 @@ public class Configuration {
     DB_USER = incomingProps.getProperty(KEY_DB_USER, "root");
     DB_PWD = incomingProps.getProperty(KEY_DB_PWD, "");
     DB_TABLE = incomingProps.getProperty(KEY_DB_TABLE, "status_table");
+    DB_QUERY_TIMEOUT = Integer.parseInt(incomingProps.getProperty(KEY_DB_QUERY_TIMEOUT, "-1"));
+    DB_POOL_SIZE = Integer.parseInt(incomingProps.getProperty(KEY_DB_POOL_SIZE, "8"));
 
     System.out.println("KAFKA_ZK_QUORUM: " + KAFKA_ZK_QUORUM);
     System.out.println("KAFKA_TOPIC: " + KAFKA_TOPIC);
@@ -132,6 +146,8 @@ public class Configuration {
     System.out.println("DB_USER: " + DB_USER);
     System.out.println("DB_PWD: " + StringUtils.repeat("*", DB_PWD.length()));
     System.out.println("DB_TABLE: " + DB_TABLE);
+    System.out.println("DB_QUERY_TIMEOUT: " + DB_QUERY_TIMEOUT);
+    System.out.println("DB_POOL_SIZE: " + DB_POOL_SIZE);
     
     return true;
   }

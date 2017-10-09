@@ -20,7 +20,7 @@ public class NotificationProducer {
 
   private static final boolean debug = true;
 
-  private static final boolean LOOP_MODE = true;
+  private static final boolean LOOP_MODE = false;
 
   public static void main(String[] argv) throws Exception {
 
