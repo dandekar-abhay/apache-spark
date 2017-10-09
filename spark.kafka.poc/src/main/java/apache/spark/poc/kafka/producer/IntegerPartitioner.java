@@ -7,8 +7,16 @@ import org.apache.kafka.common.Cluster;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class IntegerPartitioner implements Partitioner {
+  
+//    AtomicInteger partitionId = new AtomicInteger()
+//  
+//    private static int getPartitionId() {
+//      
+//    }
+  
     private static Map<String,Integer> IntegerPartitioner;
 
     // This method will gets called at the start, you should use it to do one time startup activity

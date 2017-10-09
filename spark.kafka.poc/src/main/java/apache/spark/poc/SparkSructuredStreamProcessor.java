@@ -1,9 +1,6 @@
 package apache.spark.poc;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoders;
@@ -15,6 +12,7 @@ import org.apache.spark.sql.streaming.StreamingQueryException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import apache.spark.poc.config.Configuration;
+import apache.spark.poc.db.cache.DBConnection;
 import apache.spark.poc.entity.Message;
 import apache.spark.poc.utils.FileProcessor;
 
@@ -22,8 +20,10 @@ public class SparkSructuredStreamProcessor {
 
   public static void main(String[] args) throws StreamingQueryException {
 
+    final boolean isDebug = false;
+    
     SparkSession spark = SparkSession.builder().appName("StructuredFileReader")
-        .master("local[*]").config("spark.executor.memory", "2g").getOrCreate();
+        .master("local[4]").config("spark.executor.memory", "2g").getOrCreate();
 
     // Create DataSet representing the stream of input lines from kafka
     Dataset<String> kafkaValues = spark.readStream().format("kafka")
@@ -33,7 +33,6 @@ public class SparkSructuredStreamProcessor {
         .option("fetchOffset.retryIntervalMs", 100)
         .option("checkpointLocation", "file:///tmp/checkpoint")
         .load()
-        .repartition(4)
         .selectExpr("CAST(value AS STRING)").as(Encoders.STRING());
 
     Dataset<Message> messages = kafkaValues.map(x -> {
@@ -100,65 +99,27 @@ public class SparkSructuredStreamProcessor {
       
       private static final long serialVersionUID = 1L;
       
-      Connection conn = null;
-      String connString = "jdbc:mysql://localhost:3306/aera";
-      String DBUser = "root";
-      String pwd = "Laddu$#712";
-      String table_name = "status_table";
-      
-      String INSERT_STMT = "Insert into "+table_name+" values ( %s, '%s' )" ;
-      String UPDATE_STMT = "Update " +table_name+" set status = '%s' where task_id = %s";
-      
-      private void initJDBCConnection() throws SQLException{
-        if ( conn == null ) {
-            System.out.println("Initializing JDBC connection");
-            conn = DriverManager.getConnection(connString, DBUser, pwd);
-        }else {
-          System.out.println("Connection is already inited");
-        }
-      }
-      
-      private void setStartedStatus (long jobId, String status) throws SQLException {
-        initJDBCConnection();
-        String insertStmt = String.format(INSERT_STMT, Long.toString(jobId), status);
-        Statement stmt = conn.createStatement();
-        stmt.execute(insertStmt);
-      }
-
-      private void setCompletedStatus (long jobId, String status) throws SQLException {
-        initJDBCConnection();
-        String updateStmt = String.format(UPDATE_STMT, status, Long.toString(jobId));
-        System.out.println("Stmt :-" + updateStmt);
-        Statement stmt = conn.createStatement();
-        stmt.execute(updateStmt);
-        System.out.println("Record updated");
-      }
+      private final DBConnection connection = new DBConnection(); 
       
       @Override
       public void process(Message message) {
-        System.out.println("Entered process method File : " + message.getFileName() );
-        System.out.println(" =========== Thread id : " + Thread.currentThread().getId());
+        System.out.println("Process : { File :" + message.getFileName() + 
+            ", Thread id:" + Thread.currentThread().getId() +
+            " }"
+        );
+        System.out.println();
         if (message.isSkipProcessing()) {
           System.out.println("Received a skip processing signal, skipping processing");
         }else {
           try {
-            initJDBCConnection();
-            setStartedStatus(message.getTaskId(), "MOVING_TO_HDFS");
+            connection.setStartedStatus(message.getTaskId(), "MOVING_TO_HDFS");
             int status = FileProcessor.process(message.getFileName(), message.getHdfsLocation());
             if ( status == 0 ) {
-              setCompletedStatus(message.getTaskId(), "FINAL_HDFS");  
+              connection.setCompletedStatus(message.getTaskId(), "FINAL_HDFS");  
             }else {
-              setCompletedStatus(message.getTaskId(), "ERROR CODE :" + status);
+              connection.setCompletedStatus(message.getTaskId(), "ERROR CODE :" + status);
             }
-            
-            System.out.println("Sleeping");
-            try {
-              Thread.sleep(10000);
-            } catch (InterruptedException e) {
-              // TODO Auto-generated catch block
-              e.printStackTrace();
-            }
-            
+                        
           } catch (SQLException e) {
               System.out.println("Exception while processing job id : " + message.getTaskId());
               e.printStackTrace();
@@ -168,7 +129,7 @@ public class SparkSructuredStreamProcessor {
       
       @Override
       public boolean open(long arg0, long arg1) {
-        System.out.println("Entered open method params : " + arg0 + " -- " + arg1 );
+        System.out.println("Open : Partition Id:" + arg0 + " Version:" + arg1 );
         return true;
       }
       
@@ -176,11 +137,10 @@ public class SparkSructuredStreamProcessor {
       public void close(Throwable arg0) {
         
         if (arg0 == null) {
-          System.out.println("In close : Throwable arg is null");
+          System.out.println("Close : Throwable arg is null");
         }else {
-          System.out.println("In close : Throwable arg is non-null");
+          System.out.println("Close : Throwable arg is non-null");
         }
-        
       }
     } ).start();
     

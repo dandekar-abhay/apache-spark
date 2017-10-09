@@ -14,7 +14,6 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 
@@ -33,8 +32,8 @@ import org.apache.hadoop.util.Progressable;
  */
 public class FileProcessor {
 
-  
-  
+  private static boolean isDebug = false;
+
   // TODO : Extract this HDFS specific items to a separate class
 
   private static FileSystem hdfs;
@@ -54,10 +53,12 @@ public class FileProcessor {
       hdfsConfig.addResource(
           new Path(HDFS_INSTALL_LOCATION + "/etc/hadoop/mapred-site.xml"));
 
-      System.out
-          .println("Hadoop conf path : " + hdfsConfig.get("fs.default.name"));
-      System.out
-          .println("Hadoop defaultFs path : " + hdfsConfig.get("fs.defaultFS"));
+      if (isDebug) {
+        System.out
+            .println("Hadoop conf path : " + hdfsConfig.get("fs.default.name"));
+        System.out.println(
+            "Hadoop defaultFs path : " + hdfsConfig.get("fs.defaultFS"));
+      }
       hdfs = FileSystem.get(hdfsConfig);
       System.out.println("HDFS initialized successfully");
 
@@ -70,8 +71,7 @@ public class FileProcessor {
    * Get a lazily loaded stream of lines from a gzipped file, similar to
    * {@link Files#lines(java.nio.file.Path)}.
    * 
-   * @param path
-   *          The path to the gzipped file.
+   * @param path The path to the gzipped file.
    * @return stream with lines.
    */
   public static Stream<String> lines(java.nio.file.Path path) {
@@ -79,7 +79,8 @@ public class FileProcessor {
     BufferedInputStream bufferedIs = null;
     GZIPInputStream gzipIs = null;
     try {
-      // List<OpenOption> options = Arrays.asList(OpenOption){StandardOpenOption.READ}; 
+      // List<OpenOption> options =
+      // Arrays.asList(OpenOption){StandardOpenOption.READ};
       fileIs = Files.newInputStream(path, StandardOpenOption.READ);
       // fileIs = Files.
       // Even though GZIPInputStream has a buffer it reads individual bytes
@@ -106,35 +107,36 @@ public class FileProcessor {
     }
   }
 
-  
   /*
    * Reads the location, deduplicates it, dumps it to HDFS
    */
   public static int process(String fileLocation, String hdfsDumpLocation) {
 
     // Special handle, need to remove this
-    if ( fileLocation.startsWith("file:") ) {
+    if (fileLocation.startsWith("file:")) {
       fileLocation = fileLocation.substring(7);
     }
-    
+
     File file = new File(fileLocation);
-    
-    System.out.println("Path : " + file.getPath());
+    if (isDebug) {
+      System.out.println("Path : " + file.getPath());
+    }
 
     // Primary validations
     if (!file.getAbsoluteFile().exists()) {
       System.out.println("File " + fileLocation + " does not exist");
       return -1;
-    } else 
-    if (file.isDirectory()) {
+    } else if (file.isDirectory()) {
       System.out.println("File " + fileLocation + " is a directory");
       return -2;
     } else if (file.isFile()) {
-      System.out.println("Processing File " + fileLocation);
+      if (isDebug) {
+        System.out.println("Processing File " + fileLocation);
+      }
     }
 
     try {
-      
+
       Path hdfsFile = new Path(hdfsDumpLocation);
       OutputStream output = hdfs.create(hdfsFile, new Progressable() {
         @Override
@@ -143,25 +145,26 @@ public class FileProcessor {
         }
       });
 
-      BufferedWriter br = new BufferedWriter(new OutputStreamWriter(output, "UTF-8"));
-      
+      BufferedWriter br =
+          new BufferedWriter(new OutputStreamWriter(output, "UTF-8"));
+
       Stream<String> lines;
       if (fileLocation.endsWith(".gz")) {
         // using custom gzipped lines extractor
         lines = lines(Paths.get(fileLocation));
-      }else {
+      } else {
         lines = Files.lines(Paths.get(fileLocation));
       }
-      
+
       Stream<String> dedupedLines = lines.skip(1).distinct();
-      
-      if ( isParallel ) {
-        dedupedLines = lines.parallel(); 
+
+      if (isParallel) {
+        dedupedLines = lines.parallel();
       }
-            
-      long startTime = System.currentTimeMillis();     
-    
-      dedupedLines.forEach( line -> {
+
+      long startTime = System.currentTimeMillis();
+
+      dedupedLines.forEach(line -> {
         try {
           br.write(line);
           br.newLine();
@@ -169,33 +172,38 @@ public class FileProcessor {
           System.out.println("IO Exception while writing to HDFS");
         }
       });
-      
+
       lines.close();
       br.flush();
       br.close();
-      System.out.println("\nSuccessfully processed file : " + fileLocation);
-      System.out.println("Total Time : " + ( System.currentTimeMillis() - startTime) + " ms");
-      
+      if (isDebug) {
+        System.out.println("\nSuccessfully processed file : " + fileLocation);
+        System.out.println(
+            "Total Time : " + (System.currentTimeMillis() - startTime) + " ms");
+      }
       return 0;
 
     } catch (IOException e) {
       e.printStackTrace();
     }
     return -3;
-    
+
   }
 
-  static boolean isParallel = false;  
-  
+  static boolean isParallel = false;
+
   public static void main(String[] args) {
-    
-     String fileLocation = "file:///home/abhay/MyHome/WorkArea/CodeHome/Projects/Xoriant/Aera/Data/FOPS_AUFM_20170915_033821061.gz";
-//     String fileLocation = "file:///home/abhay/MyHome/WorkArea/CodeHome/Projects/Xoriant/Aera/Data/FOPS_VBAK_VBAP_VBEP_20170920_081713115.gz";
-     String hdfsDumpLocation = "hdfs://localhost:9000/user/data_csv/1GB_fromGz.csv";
-    
-//    String fileLocation = args[0];
-//    String hdfsDumpLocation = args[1];
-//    isParallel = Boolean.parseBoolean(args[2]); 
-    process(fileLocation, hdfsDumpLocation);    
+
+    String fileLocation =
+        "file:///home/abhay/MyHome/WorkArea/CodeHome/Projects/Xoriant/Aera/Data/FOPS_AUFM_20170915_033821061.gz";
+    // String fileLocation =
+    // "file:///home/abhay/MyHome/WorkArea/CodeHome/Projects/Xoriant/Aera/Data/FOPS_VBAK_VBAP_VBEP_20170920_081713115.gz";
+    String hdfsDumpLocation =
+        "hdfs://localhost:9000/user/data_csv/1GB_fromGz.csv";
+
+    // String fileLocation = args[0];
+    // String hdfsDumpLocation = args[1];
+    // isParallel = Boolean.parseBoolean(args[2]);
+    process(fileLocation, hdfsDumpLocation);
   }
 }

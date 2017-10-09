@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-public class Configuration {
+public class Configuration_File {
 
   /*
    * Zookeeper info
@@ -92,8 +92,6 @@ public class Configuration {
     
     return true;
   }
-
-
   
   static {
     try {
@@ -112,7 +110,7 @@ public class Configuration {
   }
 
   public static void main(String[] args) {
-    Configuration config = new Configuration();
+    Configuration_File config = new Configuration_File();
     
     // TEST
     

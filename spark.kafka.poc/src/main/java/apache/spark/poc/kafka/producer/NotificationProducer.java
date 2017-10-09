@@ -34,12 +34,12 @@ public class NotificationProducer {
         "org.apache.kafka.common.serialization.StringSerializer");
     configProperties.put("request.required.acks", "1");
 
-    // configProperties.put(ProducerConfig.PARTITIONER_CLASS_CONFIG,
-    // IntegerPartitioner.class.getCanonicalName());
-    // configProperties.put("partitions.0", "0");
-    // configProperties.put("partitions.1", "1");
-    // configProperties.put("partitions.2", "2");
-    // configProperties.put("partitions.3", "3");
+//     configProperties.put(ProducerConfig.PARTITIONER_CLASS_CONFIG,
+//     IntegerPartitioner.class.getCanonicalName());
+//     configProperties.put("partitions.0", "0");
+//     configProperties.put("partitions.1", "1");
+//     configProperties.put("partitions.2", "2");
+//     configProperties.put("partitions.3", "3");
 
     //Timer timer = new Timer();
     TimerTask task = new TimerTask() {
@@ -53,7 +53,7 @@ public class NotificationProducer {
           Producer<String, String> producer =
               new KafkaProducer<String, String>(configProperties);
           
-          for (String fname : Configuration.fileList) {
+          for (String fname : Configuration.FILE_LIST) {
             int randomNum = ThreadLocalRandom.current().nextInt(0, 100);
             String nFSFilePath = Configuration.INPUT_DATA_PATH + File.separator + fname;
             testMessage.setFileName(nFSFilePath);
@@ -88,7 +88,7 @@ public class NotificationProducer {
           new KafkaProducer<String, String>(configProperties);
       
 
-        for (String fname : Configuration.fileList) {
+        for (String fname : Configuration.FILE_LIST) {
           int randomNum = ThreadLocalRandom.current().nextInt(0, 100);
           String nFSFilePath = Configuration.INPUT_DATA_PATH + File.separator + fname;
           testMessage.setFileName(nFSFilePath);
