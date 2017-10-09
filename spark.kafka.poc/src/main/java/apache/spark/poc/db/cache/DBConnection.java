@@ -17,6 +17,8 @@ import org.apache.commons.dbcp2.PoolingDataSource;
 import org.apache.commons.pool2.ObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 
+import apache.spark.poc.config.Configuration;
+
 public class DBConnection implements Serializable {
 
   private static final long serialVersionUID = 1918L;
@@ -24,11 +26,12 @@ public class DBConnection implements Serializable {
   private boolean isDebug = false;
   static Connection conn = null;
   
-  String connString = "jdbc:mysql://localhost:3306/aera";
-  String DBUser = "root";
-  String pwd = "Laddu$#712";
+  String connString = Configuration.JDBC_DB_URL;
+  String DBUser = Configuration.DB_USER;
+  String pwd = Configuration.DB_PWD;
   
-  final String TABLE_NAME = "status_table";
+  final String TABLE_NAME = Configuration.DB_TABLE;
+  
   final String INSERT_STMT = "Insert into " + TABLE_NAME + " values ( %s, '%s' )";
   final String UPDATE_STMT = "Update " + TABLE_NAME + " set status = '%s' where task_id = %s";
 
@@ -37,7 +40,7 @@ public class DBConnection implements Serializable {
     if (conn == null) {
       System.out.println("Initializing JDBC connection");
       // conn = DriverManager.getConnection(connString, DBUser, pwd);
-      conn = setupDataSource("jdbc:mysql://localhost:3306/aera", "root", "Laddu$#712").getConnection();
+      conn = setupDataSource(connString, DBUser, pwd).getConnection();
     } else {
       System.out.println(callee + " : Connection is already inited");
     }

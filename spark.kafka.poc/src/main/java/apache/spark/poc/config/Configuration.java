@@ -70,14 +70,37 @@ public class Configuration {
    * Files to process
    */
   public static List<String> FILE_LIST = new ArrayList<>();
-//      Arrays.asList("911.csv", "oec.csv", "911_1.csv", "oec_1.csv",
-//          "12MB_fromGz.csv", "12MB_fromGz_1.csv");
   public static final String KEY_FILE_LIST = "file_list";  
+
+  /*
+   * DB URL
+   */
+  public static String JDBC_DB_URL;
+  public static final String KEY_JDBC_DB_URL = "jdbc_url";
+  
+  /*
+   * DB Username
+   */
+  public static String DB_USER;
+  public static final String KEY_DB_USER = "db_user" ;
+  
+  /*
+   * DB Password
+   */
+  public static String DB_PWD;
+  public static final String KEY_DB_PWD = "db_password";
+  
+  /*
+   * DB Table
+   */
+  public static String DB_TABLE;
+  public static final String KEY_DB_TABLE = "status_table";
+  
   
   static boolean loadProperties(Properties incomingProps) {
 
     System.out.println("Using properties as below");
-    System.out.println(incomingProps);
+    // System.out.println(incomingProps);
     
     KAFKA_ZK_QUORUM = incomingProps.getProperty(KEY_KAFKA_ZK_QUORUM, "localhost:2181");
     KAFKA_TOPIC = incomingProps.getProperty(KEY_KAFKA_TOPIC, "sparktopic_4");
@@ -90,10 +113,28 @@ public class Configuration {
     HDFS_INSTALL_LOCATION = incomingProps.getProperty(KEY_HDFS_INSTALL_LOCATION, "file:///home/abhay/MyHome/WorkArea/CodeHome/Apache/Hadoop/CDH/hadoop-2.6.0-cdh5.10.0/");
     FILE_LIST = Arrays.asList(incomingProps.getProperty(KEY_FILE_LIST).replaceAll(" ", "").split(","));
     
+    JDBC_DB_URL = incomingProps.getProperty(KEY_JDBC_DB_URL, "jdbc:mysql://localhost:3306/aera");
+    DB_USER = incomingProps.getProperty(KEY_DB_USER, "root");
+    DB_PWD = incomingProps.getProperty(KEY_DB_PWD, "");
+    DB_TABLE = incomingProps.getProperty(KEY_DB_TABLE, "status_table");
+
+    System.out.println("KAFKA_ZK_QUORUM: " + KAFKA_ZK_QUORUM);
+    System.out.println("KAFKA_TOPIC: " + KAFKA_TOPIC);
+    System.out.println("KAFKA_BROKER: " + KAFKA_BROKER);
+    System.out.println("KAFKA_GROUP_ID: " + KAFKA_GROUP_ID);
+    System.out.println("KAFKA_PRODUCER_FREQ_SECS: " + KAFKA_PRODUCER_FREQ_SECS);
+    System.out.println("INPUT_DATA_PATH: " + INPUT_DATA_PATH);
+    System.out.println("HDFS_URL: " + HDFS_URL);
+    System.out.println("HDFS_STAGE_DATA_PATH: " + HDFS_STAGE_DATA_PATH);
+    System.out.println("HDFS_INSTALL_LOCATION: " + HDFS_INSTALL_LOCATION);
+    System.out.println("FILE_LIST: " + FILE_LIST);
+    System.out.println("JDBC_DB_URL: " + JDBC_DB_URL);
+    System.out.println("DB_USER: " + DB_USER);
+    System.out.println("DB_PWD: " + DB_PWD);
+    System.out.println("DB_TABLE: " + DB_TABLE);
+    
     return true;
   }
-
-
   
   static {
     try {
