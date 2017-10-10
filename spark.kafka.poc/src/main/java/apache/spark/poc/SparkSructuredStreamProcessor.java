@@ -136,11 +136,11 @@ public class SparkSructuredStreamProcessor {
         
         if (arg0 == null) {
           System.out.println("Close : Throwable arg is null");
-        }else {
+        } else {
           System.out.println("Close : Throwable arg is non-null");
         }
       }
-    } ).start();
+    } ).option("checkpointLocation", "file:///tmp/checkpoint2").start();
     
     query.awaitTermination();
   }
