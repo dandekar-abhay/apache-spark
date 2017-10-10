@@ -44,7 +44,7 @@ public class DBConnection implements Serializable {
     }
   }
 
-  public void setStartedStatus(long jobId, String status) throws SQLException {
+  public void setStatus(long jobId, String status) throws SQLException {
     initJDBCConnection("setStartedStatus");
     String insertStmt =
         String.format(INSERT_STMT, Long.toString(jobId), status);
@@ -52,7 +52,7 @@ public class DBConnection implements Serializable {
     stmt.execute(insertStmt);
   }
 
-  public void setCompletedStatus(long jobId, String status)
+  public void updateStatus(long jobId, String status)
       throws SQLException {
     initJDBCConnection("setCompletedStatus");
     String updateStmt =
@@ -84,6 +84,6 @@ public class DBConnection implements Serializable {
 
   public static void main(String[] args) throws SQLException {
     DBConnection connection = new DBConnection();
-    connection.setStartedStatus(100, "DUMMY_STATUS");
+    connection.setStatus(100, "DUMMY_STATUS");
   }  
 }

@@ -108,6 +108,12 @@ public class Configuration {
   public static int DB_POOL_SIZE;
   public static final String KEY_DB_POOL_SIZE = "db_pool_size";
   
+  /*
+   * Checkpoint location
+   */
+  public static String CHECKPOINT_LOCATION;
+  public static final String KEY_CHECKPOINT_LOCATION = "spark_checkpoint_location";
+  
   
   static boolean loadProperties(Properties incomingProps) {
 
@@ -131,6 +137,8 @@ public class Configuration {
     DB_TABLE = incomingProps.getProperty(KEY_DB_TABLE, "status_table");
     DB_QUERY_TIMEOUT = Integer.parseInt(incomingProps.getProperty(KEY_DB_QUERY_TIMEOUT, "-1"));
     DB_POOL_SIZE = Integer.parseInt(incomingProps.getProperty(KEY_DB_POOL_SIZE, "8"));
+    
+    CHECKPOINT_LOCATION=incomingProps.getProperty(KEY_CHECKPOINT_LOCATION, "file:///tmp/checkpoint");
 
     System.out.println("KAFKA_ZK_QUORUM: " + KAFKA_ZK_QUORUM);
     System.out.println("KAFKA_TOPIC: " + KAFKA_TOPIC);
@@ -148,6 +156,7 @@ public class Configuration {
     System.out.println("DB_TABLE: " + DB_TABLE);
     System.out.println("DB_QUERY_TIMEOUT: " + DB_QUERY_TIMEOUT);
     System.out.println("DB_POOL_SIZE: " + DB_POOL_SIZE);
+    System.out.println("CHECKPOINT_LOCATION: " + CHECKPOINT_LOCATION);
     
     return true;
   }

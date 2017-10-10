@@ -29,7 +29,6 @@ public class SparkSructuredStreamProcessor {
         .option("kafka.bootstrap.servers", Configuration.KAFKA_BROKER)
         .option("subscribe", Configuration.KAFKA_TOPIC)
         .option("fetchOffset.retryIntervalMs", 100)
-        .option("checkpointLocation", "file:///tmp/checkpoint")
         .load()
         .selectExpr("CAST(value AS STRING)").as(Encoders.STRING());
 
@@ -110,12 +109,12 @@ public class SparkSructuredStreamProcessor {
           System.out.println("Received a skip processing signal, skipping processing");
         }else {
           try {
-            connection.setStartedStatus(message.getTaskId(), "MOVING_TO_HDFS");
+            connection.setStatus(message.getTaskId(), "MOVING_TO_HDFS");
             int status = FileProcessor.process(message.getFileName(), message.getHdfsLocation());
             if ( status == 0 ) {
-              connection.setCompletedStatus(message.getTaskId(), "FINAL_HDFS");  
+              connection.setStatus(message.getTaskId(), "FINAL_HDFS");  
             }else {
-              connection.setCompletedStatus(message.getTaskId(), "ERROR CODE :" + status);
+              connection.setStatus(message.getTaskId(), "ERROR CODE :" + status);
             }
                         
           } catch (SQLException e) {
@@ -140,7 +139,7 @@ public class SparkSructuredStreamProcessor {
           System.out.println("Close : Throwable arg is non-null");
         }
       }
-    } ).option("checkpointLocation", "file:///tmp/checkpoint2").start();
+    } ).option("checkpointLocation", Configuration.CHECKPOINT_LOCATION).start();
     
     query.awaitTermination();
   }
