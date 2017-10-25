@@ -44,10 +44,10 @@ public class DBConnection implements Serializable {
     }
   }
 
-  public void setStatus(long jobId, String status) throws SQLException {
+  public void setStatus(String jobId, String status) throws SQLException {
     initJDBCConnection("setStartedStatus");
     String insertStmt =
-        String.format(INSERT_STMT, Long.toString(jobId), status);
+        String.format(INSERT_STMT, jobId, status);
     Statement stmt = conn.createStatement();
     stmt.execute(insertStmt);
   }
@@ -84,6 +84,6 @@ public class DBConnection implements Serializable {
 
   public static void main(String[] args) throws SQLException {
     DBConnection connection = new DBConnection();
-    connection.setStatus(100, "DUMMY_STATUS");
+    connection.setStatus("100", "DUMMY_STATUS");
   }  
 }

@@ -29,7 +29,7 @@ public class Message implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private long taskId;
+	private String taskId;
 	
 	private String fileName;
 	
@@ -39,11 +39,11 @@ public class Message implements Serializable {
 	
 	private boolean skipProcessing;
 
-	public long getTaskId() {
+	public String getTaskId() {
 		return taskId;
 	}
 
-	public void setTaskId(long taskId) {
+	public void setTaskId(String taskId) {
 		this.taskId = taskId;
 	}
 
@@ -84,7 +84,7 @@ public class Message implements Serializable {
 		return taskId+":"+fileName+":"+skipHeader+":"+hdfsLocation+":"+skipProcessing;
 	}
 	
-	public Message(long taskId, String fileName, boolean skipHeader, String hdfsLocation, boolean skipProcessing  ) {
+	public Message(String taskId, String fileName, boolean skipHeader, String hdfsLocation, boolean skipProcessing  ) {
 		this.taskId = taskId;
 		this.fileName = fileName;
 		this.skipHeader = skipHeader;
@@ -103,7 +103,7 @@ public class Message implements Serializable {
 	
 	private static void myUnitTest(){
 		
-		Message testMessage = new Message(0, "Input-File_10", true, "HDFS-File-Location_10", false);
+		Message testMessage = new Message("0", "Input-File_10", true, "HDFS-File-Location_10", false);
 
 		ObjectMapper mapper = new ObjectMapper();
 		try {

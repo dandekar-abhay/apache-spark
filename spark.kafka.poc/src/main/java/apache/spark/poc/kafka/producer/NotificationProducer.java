@@ -63,7 +63,7 @@ public class NotificationProducer {
                   Configuration.INPUT_DATA_PATH + File.separator + fname;
               testMessage.setFileName(nFSFilePath);
               testMessage.setSkipHeader(true);
-              testMessage.setTaskId(randomNum);
+              testMessage.setTaskId(Integer.toString(randomNum));
               testMessage.setHdfsLocation(
                   Configuration.HDFS_STAGE_DATA_PATH + "/" + fname);
               String msg = mapper.writeValueAsString(testMessage);
@@ -100,7 +100,7 @@ public class NotificationProducer {
               Configuration.INPUT_DATA_PATH + File.separator + fname;
           testMessage.setFileName(nFSFilePath);
           testMessage.setSkipHeader(true);
-          testMessage.setTaskId(randomNum);
+          testMessage.setTaskId(Integer.toString(randomNum));
           testMessage.setHdfsLocation(
               Configuration.HDFS_STAGE_DATA_PATH + "/" + fname);
           String msg = mapper.writeValueAsString(testMessage);
