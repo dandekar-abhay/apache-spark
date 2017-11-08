@@ -13,6 +13,18 @@ import org.apache.commons.lang.StringUtils;
 public class Configuration {
 
   /*
+   * Spark master URL info
+   */
+  public static String SPARK_MASTER_URL;
+  public static final String KEY_SPARK_MASTER_URL = "spark_master_url";  
+
+  /*
+   * Spark master URL info
+   */
+  public static String SPARK_EXECUTOR_MEMORY;
+  public static final String KEY_SPARK_EXECUTOR_MEMORY = "spark_executor_memory";  
+  
+  /*
    * Zookeeper info
    */
   public static String KAFKA_ZK_QUORUM;
@@ -120,6 +132,8 @@ public class Configuration {
     System.out.println("Using properties as below");
     // System.out.println(incomingProps);
     
+    SPARK_MASTER_URL = incomingProps.getProperty(KEY_SPARK_MASTER_URL, "local[4]");
+    SPARK_EXECUTOR_MEMORY = incomingProps.getProperty(KEY_SPARK_EXECUTOR_MEMORY, "2g");
     KAFKA_ZK_QUORUM = incomingProps.getProperty(KEY_KAFKA_ZK_QUORUM, "localhost:2181");
     KAFKA_TOPIC = incomingProps.getProperty(KEY_KAFKA_TOPIC, "sparktopic_4");
     KAFKA_BROKER = incomingProps.getProperty(KEY_KAFKA_BROKER, "localhost:9092");
@@ -140,6 +154,8 @@ public class Configuration {
     
     CHECKPOINT_LOCATION=incomingProps.getProperty(KEY_CHECKPOINT_LOCATION, "file:///tmp/checkpoint");
 
+    System.out.println("SPARK_MASTER_URL: " + SPARK_MASTER_URL);
+    System.out.println("SPARK_EXECUTOR_MEMORY: " + SPARK_EXECUTOR_MEMORY);
     System.out.println("KAFKA_ZK_QUORUM: " + KAFKA_ZK_QUORUM);
     System.out.println("KAFKA_TOPIC: " + KAFKA_TOPIC);
     System.out.println("KAFKA_BROKER: " + KAFKA_BROKER);

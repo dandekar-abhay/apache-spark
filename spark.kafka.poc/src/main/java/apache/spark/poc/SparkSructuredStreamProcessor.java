@@ -21,7 +21,7 @@ public class SparkSructuredStreamProcessor {
   public static void main(String[] args) throws StreamingQueryException {
    
     SparkSession spark = SparkSession.builder().appName("StructuredFileReader")
-        .master("local[4]").config("spark.executor.memory", "2g").getOrCreate();
+        .master(Configuration.SPARK_MASTER_URL).config("spark.executor.memory", Configuration.SPARK_EXECUTOR_MEMORY).getOrCreate();
 
     // Create DataSet representing the stream of input lines from kafka
     Dataset<String> kafkaValues = spark.readStream().format("kafka")
