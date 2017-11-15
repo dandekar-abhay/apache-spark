@@ -9,9 +9,14 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 public class Configuration {
+  
+  private static Logger logger = Logger.getLogger(Configuration.class);
 
+  final static String KEY_CONFIG_FILE = "CONF_FILE";
+  
   /*
    * Spark master URL info
    */
@@ -129,8 +134,7 @@ public class Configuration {
   
   static boolean loadProperties(Properties incomingProps) {
 
-    System.out.println("Using properties as below");
-    // System.out.println(incomingProps);
+    // logger.info(incomingProps);
     
     SPARK_MASTER_URL = incomingProps.getProperty(KEY_SPARK_MASTER_URL, "local[4]");
     SPARK_EXECUTOR_MEMORY = incomingProps.getProperty(KEY_SPARK_EXECUTOR_MEMORY, "2g");
@@ -145,34 +149,34 @@ public class Configuration {
     HDFS_INSTALL_LOCATION = incomingProps.getProperty(KEY_HDFS_INSTALL_LOCATION, "file:///home/abhay/MyHome/WorkArea/CodeHome/Apache/Hadoop/CDH/hadoop-2.6.0-cdh5.10.0/");
     FILE_LIST = Arrays.asList(incomingProps.getProperty(KEY_FILE_LIST).replaceAll(" ", "").split(","));
     
-    JDBC_DB_URL = incomingProps.getProperty(KEY_JDBC_DB_URL, "jdbc:mysql://localhost:3306/aera");
+    JDBC_DB_URL = incomingProps.getProperty(KEY_JDBC_DB_URL, "jdbc:mysql://localhost:3306/db");
     DB_USER = incomingProps.getProperty(KEY_DB_USER, "root");
     DB_PWD = incomingProps.getProperty(KEY_DB_PWD, "");
     DB_TABLE = incomingProps.getProperty(KEY_DB_TABLE, "status_table");
     DB_QUERY_TIMEOUT = Integer.parseInt(incomingProps.getProperty(KEY_DB_QUERY_TIMEOUT, "-1"));
     DB_POOL_SIZE = Integer.parseInt(incomingProps.getProperty(KEY_DB_POOL_SIZE, "8"));
-    
     CHECKPOINT_LOCATION=incomingProps.getProperty(KEY_CHECKPOINT_LOCATION, "file:///tmp/checkpoint");
 
-    System.out.println("SPARK_MASTER_URL: " + SPARK_MASTER_URL);
-    System.out.println("SPARK_EXECUTOR_MEMORY: " + SPARK_EXECUTOR_MEMORY);
-    System.out.println("KAFKA_ZK_QUORUM: " + KAFKA_ZK_QUORUM);
-    System.out.println("KAFKA_TOPIC: " + KAFKA_TOPIC);
-    System.out.println("KAFKA_BROKER: " + KAFKA_BROKER);
-    System.out.println("KAFKA_GROUP_ID: " + KAFKA_GROUP_ID);
-    System.out.println("KAFKA_PRODUCER_FREQ_SECS: " + KAFKA_PRODUCER_FREQ_SECS);
-    System.out.println("INPUT_DATA_PATH: " + INPUT_DATA_PATH);
-    System.out.println("HDFS_URL: " + HDFS_URL);
-    System.out.println("HDFS_STAGE_DATA_PATH: " + HDFS_STAGE_DATA_PATH);
-    System.out.println("HDFS_INSTALL_LOCATION: " + HDFS_INSTALL_LOCATION);
-    System.out.println("FILE_LIST: " + FILE_LIST);
-    System.out.println("JDBC_DB_URL: " + JDBC_DB_URL);
-    System.out.println("DB_USER: " + DB_USER);
-    System.out.println("DB_PWD: " + StringUtils.repeat("*", DB_PWD.length()));
-    System.out.println("DB_TABLE: " + DB_TABLE);
-    System.out.println("DB_QUERY_TIMEOUT: " + DB_QUERY_TIMEOUT);
-    System.out.println("DB_POOL_SIZE: " + DB_POOL_SIZE);
-    System.out.println("CHECKPOINT_LOCATION: " + CHECKPOINT_LOCATION);
+    logger.info("Using properties as below");
+    logger.info("SPARK_MASTER_URL: " + SPARK_MASTER_URL);
+    logger.info("SPARK_EXECUTOR_MEMORY: " + SPARK_EXECUTOR_MEMORY);
+    logger.info("KAFKA_ZK_QUORUM: " + KAFKA_ZK_QUORUM);
+    logger.info("KAFKA_TOPIC: " + KAFKA_TOPIC);
+    logger.info("KAFKA_BROKER: " + KAFKA_BROKER);
+    logger.info("KAFKA_GROUP_ID: " + KAFKA_GROUP_ID);
+    logger.info("KAFKA_PRODUCER_FREQ_SECS: " + KAFKA_PRODUCER_FREQ_SECS);
+    logger.info("INPUT_DATA_PATH: " + INPUT_DATA_PATH);
+    logger.info("HDFS_URL: " + HDFS_URL);
+    logger.info("HDFS_STAGE_DATA_PATH: " + HDFS_STAGE_DATA_PATH);
+    logger.info("HDFS_INSTALL_LOCATION: " + HDFS_INSTALL_LOCATION);
+    logger.info("FILE_LIST: " + FILE_LIST);
+    logger.info("JDBC_DB_URL: " + JDBC_DB_URL);
+    logger.info("DB_USER: " + DB_USER);
+    logger.info("DB_PWD: " + StringUtils.repeat("*", DB_PWD.length()));
+    logger.info("DB_TABLE: " + DB_TABLE);
+    logger.info("DB_QUERY_TIMEOUT: " + DB_QUERY_TIMEOUT);
+    logger.info("DB_POOL_SIZE: " + DB_POOL_SIZE);
+    logger.info("CHECKPOINT_LOCATION: " + CHECKPOINT_LOCATION);
     
     return true;
   }
@@ -180,7 +184,18 @@ public class Configuration {
   static {
     try {
       Properties defaultProps = new Properties();
-      FileInputStream in = new FileInputStream("conf/dev.properties");
+      // possible options for CONF_FILE = conf/dev.properties OR conf/test.properties OR absolute path
+      
+      String configFile = System.getProperty(KEY_CONFIG_FILE);
+      
+      if( configFile == null ) {
+        logger.info("Found KEY_CONFIG_FILE as null using config file at conf/dev.properties");
+        configFile = "conf/dev.properties";
+      }else {
+        logger.info("Using config file from : " + configFile);
+      }
+      
+      FileInputStream in = new FileInputStream(configFile);
       defaultProps.load(in);
       in.close();
       
@@ -198,16 +213,16 @@ public class Configuration {
     
     // TEST
     
-    System.out.println("KAFKA_ZK_QUORUM: " + KAFKA_ZK_QUORUM);
-    System.out.println("KAFKA_TOPIC: " + KAFKA_TOPIC);
-    System.out.println("KAFKA_BROKER: " + KAFKA_BROKER);
-    System.out.println("KAFKA_GROUP_ID: " + KAFKA_GROUP_ID);
-    System.out.println("KAFKA_PRODUCER_FREQ_SECS: " + KAFKA_PRODUCER_FREQ_SECS);
-    System.out.println("INPUT_DATA_PATH: " + INPUT_DATA_PATH);
-    System.out.println("HDFS_URL: " + HDFS_URL);
-    System.out.println("HDFS_STAGE_DATA_PATH: " + HDFS_STAGE_DATA_PATH);
-    System.out.println("HDFS_INSTALL_LOCATION: " + HDFS_INSTALL_LOCATION);
-    System.out.println("FILE_LIST: " + FILE_LIST);
+    logger.info("KAFKA_ZK_QUORUM: " + KAFKA_ZK_QUORUM);
+    logger.info("KAFKA_TOPIC: " + KAFKA_TOPIC);
+    logger.info("KAFKA_BROKER: " + KAFKA_BROKER);
+    logger.info("KAFKA_GROUP_ID: " + KAFKA_GROUP_ID);
+    logger.info("KAFKA_PRODUCER_FREQ_SECS: " + KAFKA_PRODUCER_FREQ_SECS);
+    logger.info("INPUT_DATA_PATH: " + INPUT_DATA_PATH);
+    logger.info("HDFS_URL: " + HDFS_URL);
+    logger.info("HDFS_STAGE_DATA_PATH: " + HDFS_STAGE_DATA_PATH);
+    logger.info("HDFS_INSTALL_LOCATION: " + HDFS_INSTALL_LOCATION);
+    logger.info("FILE_LIST: " + FILE_LIST);
     
   }
   

@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.apache.kafka.clients.producer.Partitioner;
 import org.apache.kafka.common.Cluster;
+import org.apache.log4j.Logger;
 
 public class IntegerPartitioner implements Partitioner {
   
@@ -17,16 +18,18 @@ public class IntegerPartitioner implements Partitioner {
 //    }
   
     private static Map<String,Integer> IntegerPartitioner;
+    
+    private Logger logger = Logger.getLogger(IntegerPartitioner.class);
 
     // This method will gets called at the start, you should use it to do one time startup activity
     public void configure(Map<String, ?> configs) {
-        System.out.println("Inside IntegerPartitioner.configure " + configs);
+        logger.info("Inside IntegerPartitioner.configure " + configs);
         IntegerPartitioner = new HashMap<String, Integer>();
         for(Map.Entry<String,?> entry: configs.entrySet()){
             if(entry.getKey().startsWith("partitions.")){
                 String keyName = entry.getKey();
                 String value = (String)entry.getValue();
-                System.out.println( keyName.substring(11));
+                logger.info( keyName.substring(11));
                 int paritionId = Integer.parseInt(keyName.substring(11));
                 IntegerPartitioner.put(value,paritionId);
             }

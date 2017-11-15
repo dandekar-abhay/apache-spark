@@ -3,6 +3,8 @@ package apache.spark.poc.entity;
 import java.io.IOException;
 import java.io.Serializable;
 
+import org.apache.log4j.Logger;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -28,6 +30,8 @@ public class Message implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	private static Logger logger = Logger.getLogger(Message.class);
 
 	private String taskId;
 	
@@ -38,6 +42,8 @@ public class Message implements Serializable {
 	private String hdfsLocation;
 	
 	private boolean skipProcessing;
+	
+	
 
 	public String getTaskId() {
 		return taskId;
@@ -108,11 +114,11 @@ public class Message implements Serializable {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			String newJson = mapper.writeValueAsString(testMessage);
-			System.out.println("To String:" + newJson);
+			logger.info("To String:" + newJson);
 			
 			Message retrievedMsg = mapper.readValue(newJson.getBytes(), Message.class);
-			System.out.println("From String: " + retrievedMsg.toString());
-			System.out.println("Expected   : " + "0:Input-File_10:true:HDFS-File-Location_10:false");
+			logger.info("From String: " + retrievedMsg.toString());
+			logger.info("Expected   : " + "0:Input-File_10:true:HDFS-File-Location_10:false");
 			Assert.assertEquals("0:Input-File_10:true:HDFS-File-Location_10:false", retrievedMsg.toString());
 			
 		} catch (JsonProcessingException e) {

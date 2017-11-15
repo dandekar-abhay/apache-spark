@@ -10,6 +10,7 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.log4j.Logger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -21,6 +22,8 @@ public class NotificationProducer {
   private static final boolean debug = true;
 
   private static final boolean LOOP_MODE = false;
+  
+  private static Logger logger = Logger.getLogger(NotificationProducer.class);
 
   public static void main(String[] argv) throws Exception {
 
@@ -69,21 +72,21 @@ public class NotificationProducer {
               String msg = mapper.writeValueAsString(testMessage);
               producer.send(new ProducerRecord<String, String>(topicName, msg));
               if (debug) {
-                System.out.println("Message inserted : " + msg);
-                System.out.println("Topic : " + topicName);
+                logger.info("Message inserted : " + msg);
+                logger.info("Topic : " + topicName);
               }
             }
             producer.close();
 
           } catch (Exception e) {
-            System.err.println("Exception while calling the timer");
+            logger.error("Exception while calling the timer");
             e.printStackTrace(System.err);
           }
         }
       };
 
       timer.schedule(task, 1000, Configuration.KAFKA_PRODUCER_FREQ_SECS * 1000);
-      System.out.println("Calling run");
+      logger.debug("Calling run");
       task.run();
     } else {
 
@@ -106,14 +109,14 @@ public class NotificationProducer {
           String msg = mapper.writeValueAsString(testMessage);
           producer.send(new ProducerRecord<String, String>(topicName, msg));
           if (debug) {
-            System.out.println("Message inserted : " + msg);
-            System.out.println("Topic : " + topicName);
+            logger.info("Message inserted : " + msg);
+            logger.info("Topic : " + topicName);
           }
         }
         producer.close();
 
       } catch (Exception e) {
-        System.err.println("Exception while calling the timer");
+        logger.error("Exception while calling the timer");
         e.printStackTrace(System.err);
       }
 

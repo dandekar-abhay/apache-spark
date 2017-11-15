@@ -21,6 +21,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.util.Progressable;
+import org.apache.log4j.Logger;
 
 /**
  * This class will be processing the files Primarily the following operations
@@ -33,6 +34,8 @@ import org.apache.hadoop.util.Progressable;
 public class FileProcessor {
 
   private static boolean isDebug = false;
+  
+  private static Logger logger = Logger.getLogger(FileProcessor.class);
 
   // TODO : Extract this HDFS specific items to a separate class
 
@@ -54,15 +57,14 @@ public class FileProcessor {
           new Path(HDFS_INSTALL_LOCATION + "/etc/hadoop/mapred-site.xml"));
 
       if (isDebug) {
-        System.out
-            .println("Hadoop conf path : " + hdfsConfig.get("fs.default.name"));
-        System.out.println(
-            "Hadoop defaultFs path : " + hdfsConfig.get("fs.defaultFS"));
+        logger.info("Hadoop conf path : " + hdfsConfig.get("fs.default.name"));
+        logger.info("Hadoop defaultFs path : " + hdfsConfig.get("fs.defaultFS"));
       }
       hdfs = FileSystem.get(hdfsConfig);
-      System.out.println("HDFS initialized successfully");
+      logger.info("HDFS initialized successfully");
 
     } catch (IOException e) {
+      logger.error("Could not init HDFS : " + e.getMessage());
       e.printStackTrace();
     }
   }
@@ -119,19 +121,19 @@ public class FileProcessor {
 
     File file = new File(fileLocation);
     if (isDebug) {
-      System.out.println("Path : " + file.getPath());
+      logger.info("Path : " + file.getPath());
     }
 
     // Primary validations
     if (!file.getAbsoluteFile().exists()) {
-      System.out.println("File " + fileLocation + " does not exist");
+      logger.info("File " + fileLocation + " does not exist");
       return -1;
     } else if (file.isDirectory()) {
-      System.out.println("File " + fileLocation + " is a directory");
+      logger.info("File " + fileLocation + " is a directory");
       return -2;
     } else if (file.isFile()) {
       if (isDebug) {
-        System.out.println("Processing File " + fileLocation);
+        logger.info("Processing File " + fileLocation);
       }
     }
 
@@ -169,7 +171,7 @@ public class FileProcessor {
           br.write(line);
           br.newLine();
         } catch (IOException e) {
-          System.out.println("IO Exception while writing to HDFS");
+          logger.error("IO Exception while writing to HDFS");
         }
       });
 
@@ -177,9 +179,8 @@ public class FileProcessor {
       br.flush();
       br.close();
       if (isDebug) {
-        System.out.println("\nSuccessfully processed file : " + fileLocation);
-        System.out.println(
-            "Total Time : " + (System.currentTimeMillis() - startTime) + " ms");
+        logger.info("Successfully processed file : " + fileLocation);
+        logger.info("Total Time : " + (System.currentTimeMillis() - startTime) + " ms");
       }
       return 0;
 

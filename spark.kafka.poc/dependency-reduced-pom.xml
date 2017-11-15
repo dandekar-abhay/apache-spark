@@ -4,7 +4,7 @@
   <groupId>apache.spark</groupId>
   <artifactId>kafka.poc</artifactId>
   <name>spark.kafka.poc</name>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.3-SNAPSHOT</version>
   <build>
     <plugins>
       <plugin>
@@ -108,10 +108,6 @@
         <exclusion>
           <artifactId>javax.servlet-api</artifactId>
           <groupId>javax.servlet</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>commons-lang3</artifactId>
-          <groupId>org.apache.commons</groupId>
         </exclusion>
         <exclusion>
           <artifactId>commons-math3</artifactId>

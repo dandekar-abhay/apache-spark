@@ -2,6 +2,7 @@ package apache.spark.poc;
 
 import java.sql.SQLException;
 
+import org.apache.log4j.Logger;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.ForeachWriter;
@@ -16,7 +17,9 @@ import apache.spark.poc.db.cache.DBConnection;
 import apache.spark.poc.entity.Message;
 import apache.spark.poc.utils.FileProcessor;
 
-public class SparkSructuredStreamProcessor {
+public class SparkStructuredStreamProcessor {
+  
+  private static Logger logger = Logger.getLogger(SparkStructuredStreamProcessor.class);
 
   public static void main(String[] args) throws StreamingQueryException {
    
@@ -100,13 +103,12 @@ public class SparkSructuredStreamProcessor {
       
       @Override
       public void process(Message message) {
-        System.out.println("Process : { File :" + message.getFileName() + 
+        logger.info("Process : { File :" + message.getFileName() + 
             ", Thread id:" + Thread.currentThread().getId() +
             " }"
         );
-        System.out.println();
         if (message.isSkipProcessing()) {
-          System.out.println("Received a skip processing signal, skipping processing");
+          logger.info("Received a skip processing signal, skipping processing");
         }else {
           try {
             connection.setStatus(message.getTaskId(), "MOVING_TO_HDFS");
@@ -118,7 +120,7 @@ public class SparkSructuredStreamProcessor {
             }
                         
           } catch (SQLException e) {
-              System.out.println("Exception while processing job id : " + message.getTaskId());
+            logger.error("Exception while processing job id : " + message.getTaskId());
               e.printStackTrace();
           }
         }
@@ -126,7 +128,7 @@ public class SparkSructuredStreamProcessor {
       
       @Override
       public boolean open(long arg0, long arg1) {
-        System.out.println("Open : Partition Id:" + arg0 + " Version:" + arg1 );
+        logger.info("Open : Partition Id:" + arg0 + " Version:" + arg1 );
         return true;
       }
       
@@ -134,9 +136,9 @@ public class SparkSructuredStreamProcessor {
       public void close(Throwable arg0) {
         
         if (arg0 == null) {
-          System.out.println("Close : Throwable arg is null");
+          logger.info("Close : Throwable arg is null");
         } else {
-          System.out.println("Close : Throwable arg is non-null");
+          logger.info("Close : Throwable arg is non-null");
         }
       }
     } ).option("checkpointLocation", Configuration.CHECKPOINT_LOCATION).start();

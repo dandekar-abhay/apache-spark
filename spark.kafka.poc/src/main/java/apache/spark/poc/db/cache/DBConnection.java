@@ -14,15 +14,19 @@ import org.apache.commons.dbcp2.PoolableConnectionFactory;
 import org.apache.commons.dbcp2.PoolingDataSource;
 import org.apache.commons.pool2.ObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPool;
+import org.apache.log4j.Logger;
 
 import apache.spark.poc.config.Configuration;
 
 public class DBConnection implements Serializable {
 
   private static final long serialVersionUID = 1918L;
+  
+  private static Logger logger = Logger.getLogger(DBConnection.class);
 
   private boolean isDebug = false;
-  static Connection conn = null;
+  private static Connection conn = null;
+  private static DataSource ds = null;
   
   String connString = Configuration.JDBC_DB_URL;
   String DBUser = Configuration.DB_USER;
@@ -36,11 +40,16 @@ public class DBConnection implements Serializable {
   
   private void initJDBCConnection(String callee) throws SQLException {
     if (conn == null) {
-      System.out.println("Initializing JDBC connection");
+      logger.info("Initializing JDBC connection");
       // conn = DriverManager.getConnection(connString, DBUser, pwd);
-      conn = setupDataSource(connString, DBUser, pwd).getConnection();
+      conn = getDataSource(connString, DBUser, pwd).getConnection();
     } else {
-      System.out.println(callee + " : Connection is already inited");
+      if ( conn.isClosed() ) {
+        logger.info("Found a closed connection, obtaining a new one");
+        conn = getDataSource(connString, DBUser, pwd).getConnection();
+      } else {
+        logger.info(callee + " : Connection is already inited");  
+      }
     }
   }
 
@@ -58,15 +67,24 @@ public class DBConnection implements Serializable {
     String updateStmt =
         String.format(UPDATE_STMT, status, Long.toString(jobId));
     if (isDebug) {
-      System.out.println("Stmt :-" + updateStmt);
+      logger.info("Stmt :-" + updateStmt);
     }
     Statement stmt = conn.createStatement();
     stmt.execute(updateStmt);
     if (isDebug) {
-      System.out.println("Record updated");
+      logger.info("Record updated");
     }
   }
 
+  private static DataSource getDataSource(String connectURI, String username, String password) {
+    if (ds!=null) {
+      return ds;
+    }else {
+      ds = setupDataSource(connectURI, username, password);
+    }
+    return ds;
+  }
+  
   public static DataSource setupDataSource(String connectURI, String username, String password) {
 
     ConnectionFactory connectionFactory = new DriverManagerConnectionFactory(connectURI, username, password);
