@@ -15,6 +15,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 // import org.apache.hadoop.util.Progressable;
 import org.apache.log4j.Logger;
+import org.apache.spark.SparkContext;
 //import org.apache.spark.SparkContext;
 
 /**
@@ -154,8 +155,8 @@ public class FileProcessor {
      * @param hdfsDumpLocation
      * @return
      */
-//      public static int processFileList(SparkContext sc, String hdfsDumpLocation){
-    public static int processFileList(String hdfsDumpLocation){
+      public static int processFileList(SparkContext sc, String hdfsDumpLocation){
+//     public static int processFileList(String hdfsDumpLocation){
 
       Runnable processorThread = new Runnable() {
           @Override

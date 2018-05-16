@@ -125,17 +125,19 @@ public class SparkStructuredStreamProcessor {
                                 .sparkContext()
                                 .textFile("hdfs://localhost:9000" + HDFS_STAGE_LOCATION + "/" + message.getFileName(), 10);
 
+                        // Check this code, implement it for CSV and then
+                        // implement it here
+                        // TODO : implement a threaded mechanism for handling if any files are pending cos of failed transactions
+                        //
                         String header = data.first();
                         RDD<String> dataWithoutHeader = data.filter(line -> !line.equals(header));
                         dataWithoutHeader.sortBy(new Function<String, String>() {
-                            @Override
                             public String call(String arg0) throws Exception {
                                 return arg0.split(",")[1];
                             }
                         }, true);
 
-
-                        FileProcessor.processFileList(spark.sparkContext(), message.getHdfsLocation());
+                        // FileProcessor.processFileList(spark.sparkContext(), message.getHdfsLocation());
                         if (status == 0) {
                             connection.setStatus(message.getTaskId(), "FINAL_HDFS");
                         } else {
