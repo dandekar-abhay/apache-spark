@@ -1,27 +1,21 @@
 package apache.spark.poc.utils;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 
+// import apache.spark.poc.SparkStructuredStreamProcessor;
+import apache.spark.poc.SparkStructuredStreamProcessor;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.util.Progressable;
+// import org.apache.hadoop.util.Progressable;
 import org.apache.log4j.Logger;
+//import org.apache.spark.SparkContext;
 
 /**
  * This class will be processing the files Primarily the following operations
@@ -48,7 +42,10 @@ public class FileProcessor {
       String HDFS_INSTALL_LOCATION =
           apache.spark.poc.config.Configuration.HDFS_INSTALL_LOCATION;
 
+        System.out.println("Using HDFS location : " + HDFS_INSTALL_LOCATION);
+
       Configuration hdfsConfig = new Configuration();
+
       hdfsConfig.addResource(
           new Path(HDFS_INSTALL_LOCATION + "/etc/hadoop/core-site.xml"));
       hdfsConfig.addResource(
@@ -109,9 +106,95 @@ public class FileProcessor {
     }
   }
 
+  /**
+   * Copies the file from local to HDFS
+   * @param fileLocation
+   * @param hdfsDumpLocation
+   * @return
+   */
+  public static int copyToHDFS(String fileLocation, String hdfsDumpLocation){
+
+    // Special handle, need to remove this
+    if (fileLocation.startsWith("file:")) {
+      fileLocation = fileLocation.substring(7);
+    }
+
+    File file = new File(fileLocation);
+    if (isDebug) {
+      logger.info("Path : " + file.getPath());
+    }
+
+    // Primary validations
+    if (!file.getAbsoluteFile().exists()) {
+      logger.info("File " + fileLocation + " does not exist");
+      return -1;
+    } else if (file.isDirectory()) {
+      logger.info("File " + fileLocation + " is a directory");
+      return -2;
+    } else if (file.isFile()) {
+      if (isDebug) {
+        logger.info("Processing File " + fileLocation);
+      }
+    }
+
+    try {
+      hdfs.copyFromLocalFile(new Path(fileLocation), new Path(hdfsDumpLocation));
+      return 0;
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    return -3;
+  }
+
+  static AtomicBoolean threadInUseStatus = new AtomicBoolean(false);
+
+    /**
+     * Read all the files in the dump location, process them
+     * @param hdfsDumpLocation
+     * @return
+     */
+//      public static int processFileList(SparkContext sc, String hdfsDumpLocation){
+    public static int processFileList(String hdfsDumpLocation){
+
+      Runnable processorThread = new Runnable() {
+          @Override
+          public void run() {
+
+              if (threadInUseStatus.get() == true  ){
+                  System.out.println("Thread is in process, return later");
+              }
+              else{
+                  try{
+                      threadInUseStatus.getAndSet(true);
+                      FileStatus[] fsStatus = hdfs.listStatus(new Path(hdfsDumpLocation));
+
+                      for (FileStatus status : fsStatus){
+                          System.out.println("File : " + status.getPath());
+                          // processDeduplicate();
+                      }
+
+                  } catch (FileNotFoundException e) {
+                      e.printStackTrace();
+                  } catch (IOException e) {
+                      e.printStackTrace();
+                  } finally {
+                      threadInUseStatus.getAndSet(false);
+                  }
+              }
+          }
+      };
+
+      new Thread(processorThread).start();
+
+      return 0;
+  }
+
+
   /*
    * Reads the location, deduplicates it, dumps it to HDFS
    */
+  /*
   public static int process(String fileLocation, String hdfsDumpLocation) {
 
     // Special handle, need to remove this
@@ -191,12 +274,13 @@ public class FileProcessor {
 
   }
 
+*/
   static boolean isParallel = false;
 
   public static void main(String[] args) {
 
     String fileLocation =
-        "file:///home/abhay/MyHome/WorkArea/CodeHome/Projects/Xoriant/Aera/Data/FOPS_AUFM_20170915_033821061.gz";
+        "file:///home/abhay/MyHome/WorkHome/DataHome/datasets/911CallData/911_1.csv";
     // String fileLocation =
     // "file:///home/abhay/MyHome/WorkArea/CodeHome/Projects/Xoriant/Aera/Data/FOPS_VBAK_VBAP_VBEP_20170920_081713115.gz";
     String hdfsDumpLocation =
@@ -205,6 +289,11 @@ public class FileProcessor {
     // String fileLocation = args[0];
     // String hdfsDumpLocation = args[1];
     // isParallel = Boolean.parseBoolean(args[2]);
-    process(fileLocation, hdfsDumpLocation);
+    // process(fileLocation, hdfsDumpLocation);
+
+    copyToHDFS(fileLocation, hdfsDumpLocation);
+
+    // processFileList(SparkStructuredStreamProcessor.HDFS_STAGE_LOCATION);
+
   }
 }

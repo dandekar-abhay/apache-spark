@@ -190,7 +190,7 @@ public class Configuration {
       
       if( configFile == null ) {
         logger.info("Found KEY_CONFIG_FILE as null using config file at conf/dev.properties");
-        configFile = "conf/dev.properties";
+        configFile = "conf/dev_local.properties";
       }else {
         logger.info("Using config file from : " + configFile);
       }
@@ -223,7 +223,17 @@ public class Configuration {
     logger.info("HDFS_STAGE_DATA_PATH: " + HDFS_STAGE_DATA_PATH);
     logger.info("HDFS_INSTALL_LOCATION: " + HDFS_INSTALL_LOCATION);
     logger.info("FILE_LIST: " + FILE_LIST);
-    
+
+    System.out.println("KAFKA_ZK_QUORUM: " + KAFKA_ZK_QUORUM);
+    System.out.println("KAFKA_TOPIC: " + KAFKA_TOPIC);
+    System.out.println("KAFKA_BROKER: " + KAFKA_BROKER);
+    System.out.println("KAFKA_GROUP_ID: " + KAFKA_GROUP_ID);
+    System.out.println("KAFKA_PRODUCER_FREQ_SECS: " + KAFKA_PRODUCER_FREQ_SECS);
+    System.out.println("INPUT_DATA_PATH: " + INPUT_DATA_PATH);
+    System.out.println("HDFS_URL: " + HDFS_URL);
+    System.out.println("HDFS_STAGE_DATA_PATH: " + HDFS_STAGE_DATA_PATH);
+    System.out.println("HDFS_INSTALL_LOCATION: " + HDFS_INSTALL_LOCATION);
+    System.out.println("FILE_LIST: " + FILE_LIST);
   }
   
 }
