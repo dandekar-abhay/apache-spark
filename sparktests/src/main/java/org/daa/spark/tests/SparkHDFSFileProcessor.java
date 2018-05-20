@@ -72,6 +72,7 @@ public class SparkHDFSFileProcessor implements Callable<Integer> {
 
                     JavaRDD sorted = csvDataRDD
                             .filter( line -> line != headerList.get(0))
+                            .sortBy( line -> line, true, 2)
                             .distinct();
 
                     JavaSparkContext jsc = new JavaSparkContext(sparkContext);
@@ -80,7 +81,7 @@ public class SparkHDFSFileProcessor implements Callable<Integer> {
                     jsc
                             .parallelize(headerList)
                             .union(sorted)
-                            .coalesce(1)
+                            .repartition(1)
                             .saveAsTextFile( baseHDFSUrl + storageDirectory+"_temp/"+status.getPath().getName());
 
                     hdfs.rename(
@@ -135,37 +136,27 @@ public class SparkHDFSFileProcessor implements Callable<Integer> {
                     sparkSession.sparkContext(), hdfs,
                     "/user/abhay/AERA_HDFS_STAGE", "/user/abhay/AERA_HDFS", 1 );
 
+            TimerTask task = new TimerTask () {
+                @Override
+                public void run() {
                     try {
                         fileProcessor.call();
                     } catch (Exception e) {
                         System.err.println("Exception while calling the timer");
                         e.printStackTrace(System.err);
                     }
+                }
+            };
 
-//            TimerTask task = new TimerTask () {
-//                @Override
-//                public void run() {
-//                    try {
-//                        fileProcessor.call();
-//                    } catch (Exception e) {
-//                        System.err.println("Exception while calling the timer");
-//                        e.printStackTrace(System.err);
-//                    }
-//                }
-//            };
-//
-//            // 1 sec tester
-//            // timer.schedule(task, 1000, 1000 );
-//            timer.schedule(task, 1000, (1 * 60 * 1000) / 6);
+            // 1 sec tester
+            // timer.schedule(task, 1000, 1000 );
+            timer.schedule(task, 1000, (1 * 60 * 1000) / 6);
 
         } catch (IOException e) {
             System.out.println("Could not init HDFS : " + e.getMessage());
             e.printStackTrace();
             System.exit(-1);
         }
-
-
-
 
     }
 }
