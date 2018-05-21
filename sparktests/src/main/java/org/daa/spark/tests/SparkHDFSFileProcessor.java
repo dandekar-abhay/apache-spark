@@ -45,6 +45,8 @@ public class SparkHDFSFileProcessor implements Callable<Integer> {
 
         String baseHDFSUrl = hdfs.getConf().get("fs.defaultFS");
 
+
+
         if (runningStatus.get() == true){
             System.out.println("Already running .. returning");
             return -1;
@@ -115,7 +117,7 @@ public class SparkHDFSFileProcessor implements Callable<Integer> {
 
         try {
 
-            String HDFS_INSTALL_LOCATION = "/home/abhay/MyHome/WorkHome/CodeHome/Apache/Hadoop/hadoop-2.7.5";
+            String HDFS_INSTALL_LOCATION = "/home/abhay/MyHome/WorkArea/CodeHome/Apache/Hadoop/CDH/hadoop";
             System.out.println("Using HDFS location : " + HDFS_INSTALL_LOCATION);
 
             Configuration hdfsConfig = new Configuration();
@@ -133,7 +135,7 @@ public class SparkHDFSFileProcessor implements Callable<Integer> {
 
             SparkHDFSFileProcessor fileProcessor = new SparkHDFSFileProcessor(
                     sparkSession.sparkContext(), hdfs,
-                    "/user/abhay/AERA_HDFS_STAGE", "/user/abhay/AERA_HDFS", 1 );
+                    "/user/abhay/HDFS_STAGE_DIR", "/user/abhay/HDFS_FINAL", 1 );
 
             TimerTask task = new TimerTask () {
                 @Override

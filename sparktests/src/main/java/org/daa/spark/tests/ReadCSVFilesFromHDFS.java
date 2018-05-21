@@ -1,9 +1,14 @@
 package org.daa.spark.tests;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.SparkSession;
+
+import java.io.IOException;
 
 public class ReadCSVFilesFromHDFS {
 
@@ -53,6 +58,8 @@ public class ReadCSVFilesFromHDFS {
 
 
     public static void main(String[] args) {
+
+
 
         SparkSession sparkSession = SparkSession.builder()
                 .appName("SparkCVSReader")
