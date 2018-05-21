@@ -102,7 +102,6 @@ public class SparkHDFSFileProcessor implements Callable<Integer> {
         }
     }
 
-
     public static void main(String[] args) {
 
         Timer timer = new Timer();
