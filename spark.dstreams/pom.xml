@@ -21,7 +21,7 @@
         <spark.streaming.kafka.artifact.version>spark-streaming-kafka_2.10</spark.streaming.kafka.artifact.version>
 
         <kafka.artifact.version>2.11</kafka.artifact.version>
-        <kafka.version>0.11.0.0</kafka.version>
+        <kafka.version>0.11.0.2</kafka.version>
     </properties>
 
     <dependencies>
